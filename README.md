@@ -4,4 +4,4 @@ Giles Colclough
 Oxford Centre for Human Brain Activity
 giles "dot" colclough "at" ohba.ox.ac.uk
 
-
+See Colclough, G.L. et al., NeuroImage 117, pp. 439-448 (2015).
