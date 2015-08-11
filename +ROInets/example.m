@@ -62,7 +62,11 @@ Settings.outputDirectory          = outDir;                         % Set a dire
 Settings.groupStatisticsMethod    = 'mixed-effects';                % 'mixed-effects' or 'fixed-effects'
 Settings.FDRalpha                 = 0.05;                           % false determination rate significance threshold
 Settings.sessionName              = sessionName; 
+Settings.SaveCorrected            = struct('timeCourses',   false, ...  % save corrected timecourses
+                                           'envelopes',     true,  ...  % save corrected power envelopes
+                                           'variances',     false);     % save mean power in each ROI before correction
 
+                                       
 % run the ROI network analysis
 Settings        = ROInets.check_inputs(Settings);
 correlationMats = ROInets.run_individual_network_analysis(dataFile, Settings, resultsName);
