@@ -1,4 +1,4 @@
-function [h, z_thresh, q] = false_discovery_rate(z, alpha)
+function [h, z_thresh, q] = false_discovery_rate(z, alpha, FDRmethod)
 %FALSE_DISCOVERY_RATE converts standard z-scores to q-scores
 %
 % [H, Z_THRESH, Q] = FALSE_DISCOVERY_RATE(Z, ALPHA) converts z-scores in a 
@@ -9,6 +9,19 @@ function [h, z_thresh, q] = false_discovery_rate(z, alpha)
 %   adjusted probabilites for the false discovery rate: if matrix Q is 
 %   thresholded at level alpha, then the set of edges with 
 %   Q<=alpha will have a collective false discovery rate of alpha. 
+%
+% [...] = FALSE_DISCOVERY_RATE(...,TYPE) changes the type of FDR method
+%   used. The options are ['pdep' or 'dep'] 
+%             If 'pdep,' the original Bejnamini & Hochberg
+%             FDR procedure is used, which is guaranteed to be accurate if
+%             the individual tests are independent or positively dependent
+%             (e.g., Gaussian variables that are positively correlated or
+%             independent).  If 'dep,' the FDR procedure
+%             described in Benjamini & Yekutieli (2001) that is guaranteed
+%             to be accurate for any test dependency structure (e.g.,
+%             Gaussian variables with any covariance matrix) is used. 'dep'
+%             is always appropriate to use but is less powerful than 'pdep.'
+%             {default: 'dep'}
 %
 %   Tests are all two-tailed. 
 
@@ -58,7 +71,7 @@ validateattributes(z, {'numeric'}, {'2d'}, mfilename, 'z');
 tol = 1e-10; % z-scores are order(1)   
    
 % use Benjamini and Yekutieli procedure to convert z to q.
-FDRmethod   = 'dep';
+if nargin < 3, FDRmethod   = 'dep'; end%if
 doReporting = false;
 
 if isvector(z),
