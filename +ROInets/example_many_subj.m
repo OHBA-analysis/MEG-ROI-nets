@@ -3,7 +3,7 @@ function correlationMats = example_many_subj(varargin)
 %
 % correlationMats = EXAMPLE_MANY_SUBJ()
 % for help, type
-% `help ROInets.run_individual_network_analysis'
+% `help osl_network_analysis'
 
 %	Copyright 2015 OHBA
 %	This program is free software: you can redistribute it and/or modify
@@ -59,8 +59,9 @@ Settings.nEmpiricalSamples        = 8;                              % convert co
 Settings.ARmodelOrder             = 1;                              % We tailor the empirical data to have the same temporal smoothness as the MEG data. An order of 1 should be ok.
 Settings.EnvelopeParams.windowLength = 2; % s                       % sliding window length for power envelope calculation. See Brookes 2011, 2012 and Luckhoo 2012. 
 Settings.EnvelopeParams.useFilter    = true;                        % use a more sophisticated filter than a sliding window average
+Settings.EnvelopeParams.takeLogs  = true;                           % perform analysis on logarithm of envelope. This improves normality assumption
 Settings.frequencyBands           = {[8 13], [13 30], []};          % a set of frequency bands for analysis. Set to empty to use broadband. The bandpass filtering is performed before orthogonalisation. 
-Settings.timecourseCreationMethod = 'spatialBasis';                 % 'PCA', 'mean', 'peakVoxel' or 'spatialBasis'
+Settings.timecourseCreationMethod = 'spatialBasis';                 % 'PCA',  'peakVoxel' or 'spatialBasis'
 Settings.outputDirectory          = outDir;                         % Set a directory for the results output
 Settings.groupStatisticsMethod    = 'fixed-effects';                % 'mixed-effects' or 'fixed-effects'
 Settings.FDRalpha                 = 0.05;                           % false determination rate significance threshold

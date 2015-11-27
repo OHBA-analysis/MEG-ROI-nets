@@ -22,7 +22,7 @@ function [envelopedData, t_ds, newFs] = envelope_data(dipoleMag, t, varargin)
 %    The passed frequency is 1.0/WINDOWLENGTH, resampled to a Nyquist 
 %    frequency of twice this. 
 %
-% ENV = ENVELOPE_DAT(..., 'takeLogs', true) returns the logarithm of the
+% ENV = ENVELOPE_DATA(..., 'takeLogs', true) returns the logarithm of the
 %    power envelopes, computed as 2*log(env).
 %
 % ENV = ENVELOPE_DATA(..., 'verbose', true) increases the volume of text

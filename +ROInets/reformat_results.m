@@ -30,28 +30,49 @@ function correlationMats = reformat_results(mats, Settings)
 
 for iSession = Settings.nSessions:-1:1,  
     for iFreq = Settings.nFreqBands:-1:1,
-        correlationMats{iFreq}.correlation(:,:,iSession)             = mats{iSession}{iFreq}.correlation;
-        correlationMats{iFreq}.envCorrelation(:,:,iSession)          = mats{iSession}{iFreq}.envCorrelation;
-        correlationMats{iFreq}.envCovariance(:,:,iSession)           = mats{iSession}{iFreq}.envCovariance;
-        correlationMats{iFreq}.envPrecision(:,:,iSession)            = mats{iSession}{iFreq}.envPrecision;
-        correlationMats{iFreq}.envPartialCorrelation(:,:,iSession)   = mats{iSession}{iFreq}.envPartialCorrelation;
-        correlationMats{iFreq}.envCorrelation_z(:,:,iSession)        = mats{iSession}{iFreq}.env_z;
-        correlationMats{iFreq}.envPartialCorrelation_z(:,:,iSession) = mats{iSession}{iFreq}.env_z_partial;
+        if strcmpi(Settings.paradigm, 'rest'),
+            % reformat all of the results
+            correlationMats{iFreq}.correlation(:,:,iSession)             = mats{iSession}{iFreq}.correlation;
+            correlationMats{iFreq}.envCorrelation(:,:,iSession)          = mats{iSession}{iFreq}.envCorrelation;
+            correlationMats{iFreq}.envCovariance(:,:,iSession)           = mats{iSession}{iFreq}.envCovariance;
+            correlationMats{iFreq}.envPrecision(:,:,iSession)            = mats{iSession}{iFreq}.envPrecision;
+            correlationMats{iFreq}.envPartialCorrelation(:,:,iSession)   = mats{iSession}{iFreq}.envPartialCorrelation;
+            correlationMats{iFreq}.envCorrelation_z(:,:,iSession)        = mats{iSession}{iFreq}.envCorrelation_z;
+            correlationMats{iFreq}.envPartialCorrelation_z(:,:,iSession) = mats{iSession}{iFreq}.envPartialCorrelation_z;
+            if Settings.Regularize.do,
+                correlationMats{iFreq}.envPartialCorrelationRegularized(:,:,iSession)   = mats{iSession}{iFreq}.envPartialCorrelationRegularized;
+                correlationMats{iFreq}.envPrecisionRegularized(:,:,iSession)            = mats{iSession}{iFreq}.envPrecisionRegularized;
+                correlationMats{iFreq}.envPartialCorrelationRegularized_z(:,:,iSession) = mats{iSession}{iFreq}.envPartialCorrelationRegularized_z;
+                correlationMats{iFreq}.Regularization(iSession)                         = mats{iSession}{iFreq}.Regularization;
+            end%if
+        end%if
         if isfield(mats{iSession}{iFreq}, 'ARmodel'),
-            correlationMats{iFreq}.ARmodel(iSession)                 = mats{iSession}{iFreq}.ARmodel;
+            correlationMats{iFreq}.ARmodel(iSession)  = mats{iSession}{iFreq}.ARmodel;
         end%if
         if isfield(mats{iSession}{iFreq}, 'H0Sigma'),
-            correlationMats{iFreq}.H0Sigma(iSession)                 = mats{iSession}{iFreq}.H0Sigma;
+            correlationMats{iFreq}.H0Sigma(iSession)  = mats{iSession}{iFreq}.H0Sigma;
         end%if
-        correlationMats{iFreq}.nEnvSamples(iSession)                 = mats{iSession}{iFreq}.nSamples;
-        if Settings.Regularize.do,
-            correlationMats{iFreq}.envPartialCorrelationRegularized(:,:,iSession)   = mats{iSession}{iFreq}.envPartialCorrelationRegularized;
-            correlationMats{iFreq}.envPrecisionRegularized(:,:,iSession)            = mats{iSession}{iFreq}.envPrecisionRegularized;
-            correlationMats{iFreq}.envPartialCorrelationRegularized_z(:,:,iSession) = mats{iSession}{iFreq}.env_z_partial_reg;
-            correlationMats{iFreq}.Regularization(iSession)                         = mats{iSession}{iFreq}.Regularization;
-        end%if
-        correlationMats{iFreq}.sessionNames{iSession}                = mats{iSession}{iFreq}.sessionName;
+        correlationMats{iFreq}.nEnvSamples(iSession)  = mats{iSession}{iFreq}.nSamples;        
+        correlationMats{iFreq}.sessionNames{iSession} = mats{iSession}{iFreq}.sessionName;
     end%for
+    
+    if strcmpi(Settings.paradigm, 'task'),
+        % only store the results from the GLM. 
+        % if the user wants results averaged over all trials, they should
+        % provide a contrast specifically for that.
+        
+        for iContrast = length(mats{1}{1}.firstLevel):-1:1,
+            correlationMats{iFreq}.firstLevel(iContrast).cope.correlation(:,:,iSession) = mats{iSession}{iFreq}.firstLevel(iContrast).cope.correlation;
+            correlationMats{iFreq}.firstLevel(iContrast).cope.partialCorrelation(:,:,iSession) = mats{iSession}{iFreq}.firstLevel(iContrast).cope.partialCorrelation;
+            correlationMats{iFreq}.firstLevel(iContrast).cope.partialCorrelationRegularized(:,:,iSession) = mats{iSession}{iFreq}.firstLevel(iContrast).cope.partialCorrelationRegularized;
+            correlationMats{iFreq}.firstLevel(iContrast).contrast = Settings.SubjectLevel.contrasts{iContrast};
+            correlationMats{iFreq}.firstLevel(iContrast).conditionLabel = Settings.SubjectLevel.conditionLabel;
+        end%for
+    end%if
+    
+    correlationMats{iFreq}.frequencyBand = Settings.frequencyBands{iFreq};
 end%for
+
+
 
 end%reformat_results

@@ -78,19 +78,25 @@ if nargin < 2 || isempty(Regularize),
     Regularize.do = false; 
 end%if 
 
+nTrials = size(envData, 3);
+
 if ~isempty(nodeData),
     % raw correlations
-    rawCorr  = corr(nodeData');
+    for iTrial = size(nodeData,3):-1:1,
+        rawCorr(:,:,iTrial) = corr(nodeData(:,:,iTrial)');
+    end
     clear nodeData
 else
     rawCorr = [];
 end%if
 
 fprintf(' Running correlation analysis on enveloped data: \n');
-nodeCov       = cov(real(envData'));
-nodeCorr      = corrcov(nodeCov);
-nodePrecision = ROInets.cholinv(nodeCov);
-nodePCorr     = ROInets.convert_precision_to_pcorr(nodePrecision);
+for iTrial = nTrials:-1:1,
+    nodeCov(:,:,iTrial)       = cov(real(envData(:,:,iTrial)'));
+    nodeCorr(:,:,iTrial)      = corrcov(nodeCov(:,:,iTrial));
+    nodePrecision(:,:,iTrial) = ROInets.cholinv(nodeCov(:,:,iTrial));
+    nodePCorr(:,:,iTrial)     = ROInets.convert_precision_to_pcorr(nodePrecision(:,:,iTrial));
+end%for
 
 nSamples = ROInets.cols(envData);
 
@@ -114,6 +120,7 @@ if Regularize.do,
         burnIn = 3000; %iterations
         nMC    = 8000; %iterations
         
+        for iTrial = nTrials:-1:1,
         [~,             ...
          postPrecision, ...
          postLambda] = ROInets.BayesGLasso_Columnwise(nodeCov .* nSamples, ...
@@ -125,32 +132,36 @@ if Regularize.do,
                                                       burnIn,              ...
                                                       nMC);
         
-        regPrec  = mean(postPrecision, 3);
-        regPCorr = ROInets.convert_precision_to_pcorr(regPrec);
-        meanRho  = mean(postLambda) ./ nSamples; % lambda = N * rho
+        regPrec(:,:,iTrial)  = mean(postPrecision, 3);
+        regPCorr(:,:,iTrial) = ROInets.convert_precision_to_pcorr(regPrec);
+        meanRho(:,:,iTrial)  = mean(postLambda) ./ nSamples; % lambda = N * rho
         fprintf('   Mean regularization rho: %g. \n', meanRho);
+        mats.Regularization.posteriorRho(:,:,iTrial) = postLambda ./nSamples;
+        end%for
         
         mats.envPartialCorrelationRegularized = regPCorr;
         mats.envPrecisionRegularized          = regPrec;
-        mats.Regularization.mean              = meanRho;
-        mats.Regularization.posteriorRho      = postLambda ./nSamples;
+        mats.Regularization.mean              = mean(meanRho,3);
         
         
         case 'Friedman'
         % do Friedman (2008)'s graphical lasso. May be faster. 
         fprintf('   Regularizing using graphical lasso and x-validation \n');
         Kfold                  = 10;
-        [regPrecision, rhoOpt] = ROInets.glasso_cv(real(normalise_vectors(...
-                                           ROInets.demean(envData,2),2)), ...
-                                                   Regularize.path,       ...
-                                                   Kfold,                 ...
-                                                   [],                    ...
-                                                   Regularize.adaptivePath);
-        
-        regPCorr = ROInets.convert_precision_to_pcorr(regPrecision);
+        for iTrial = nTrials:-1:1,
+            [regPrecision(:,:,iTrial), rhoOpt(:,:,iTrial)] =                  ...
+                             ROInets.glasso_cv(real(normalise_vectors(        ...
+                                               ROInets.demean(envData(:,:,iTrial),2),2)), ...
+                                                       Regularize.path,       ...
+                                                       Kfold,                 ...
+                                                       [],                    ...
+                                                       Regularize.adaptivePath);
+
+            regPCorr(:,:,iTrial) = ROInets.convert_precision_to_pcorr(regPrecision(:,:,iTrial));
+        end%for
         mats.envPrecisionRegularized          = regPrecision;% this is going to be scaled. Sorry.
         mats.envPartialCorrelationRegularized = regPCorr;
-        mats.Regularization.mean              = rhoOpt;
+        mats.Regularization.mean              = mean(rhoOpt,3);
         
         otherwise % not one of these methods
         error([mfilename ':UnrecognisedRegMethod'],         ...

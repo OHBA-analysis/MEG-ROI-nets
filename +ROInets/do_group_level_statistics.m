@@ -1,8 +1,9 @@
 function correlationMats = do_group_level_statistics(correlationMats, Settings)
-%DO_GROUP_LEVEL_STATISTICS add group level inference 
+%DO_GROUP_LEVEL_STATISTICS add group level inference for mean over subects
 % 
 % CORRMATS = DO_GROUP_LEVEL_STATISTICS(CORRMATS, SETTINGS) adds group-level
-%   inference fields to the CORRMATS structure. 
+%   inference fields to the CORRMATS structure. This tests just for edge
+%   presence over all subjects
 %
 %   Adds fields groupEnvCorrelation_z, groupEnvPartialCorrelation_z and
 %   groupEnvPartialCorrelationRegularized_z. 

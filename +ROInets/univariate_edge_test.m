@@ -102,14 +102,9 @@ command = sprintf('randomise -i %s -o %s -d %s -t %s -x', ...
                   inputNifti, outputNifti, designFile, contrastFile);
               
 % submit to terminal
-fprintf('%s\n', command);
-[status, result] = system(command);
-if status, 
-    error([mfilename ':systemCallFailed'], ...
-          'System command failed with message: \n   %s \n', result);
-end%if 
+ROInets.call_fsl_wrapper(command);
 
-Co = onCleanup(@() delete(outputNifti));
+Co = onCleanup(@() delete([outputNifti '*.nii.gz']));
 
 %% Retrieve results
 for iCon = nContrasts:-1:1,
@@ -120,13 +115,6 @@ for iCon = nContrasts:-1:1,
    Ttmp(:,iCon)     = read_avw (TstatFile{iCon});
    ptmp(:,iCon)     = read_avw (pFile{iCon});
    corrptmp(:,iCon) = read_avw (corrpFile{iCon});
-end%for
-
-% tidy
-for iCon = 1:nContrasts,
-    delete(TstatFile{iCon});
-    delete(pFile{iCon});
-    delete(corrpFile{iCon});
 end%for
 
 % convert back to symmetric matrices

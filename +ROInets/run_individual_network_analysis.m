@@ -274,8 +274,7 @@ fprintf('%s: starting analysis. \n', mfilename);
 
 
 %% Parse input settings
-fprintf('%s: checking inputs. \n', mfilename);
-
+% fprintf('%s: checking inputs. \n', mfilename);
 % Settings = ROInets.check_inputs(Settings);
 
 % make results directory
@@ -369,17 +368,11 @@ assert(isequal(ROInets.rows(spatialBasis), ROInets.rows(voxelDataBroadBand)), ..
        [mfilename ':ROIDataMisMatch'],                                        ...
        'Number of voxels in data and ROI basis set do not match. \n');
    
-% check we have a binary spatial basis
-isBinaryMask = all(0 == spatialBasis(:) | 1 == spatialBasis(:));
-if isBinaryMask,
-    fprintf('Applying ROIs. \n');
-    allROImask = logical(ROInets.row_sum(spatialBasis));
-    % remove irrelevant voxels
-    voxelDataBroadBand(~allROImask, :) = [];
-    spatialBasis(~allROImask, :)       = [];
-else
-    allROImask = true(ROInets.rows(spatialBasis), 1);
-end%if
+fprintf('Applying ROIs. \n');
+allROImask = logical(ROInets.row_sum(abs(spatialBasis)));
+% remove irrelevant voxels with no weight in any basis vector
+voxelDataBroadBand(~allROImask, :) = [];
+spatialBasis(~allROImask, :)       = [];
 
 %% Fit an AR model for the construction of empirical H0 data
 if nH0Iter,

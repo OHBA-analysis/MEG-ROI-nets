@@ -40,11 +40,7 @@ if 1==nargin || ~isSparse,
     [R,p] = chol(M);
     
     if ~p,
-        if 3 == exist('solve_triu', 'file'),
-            Rinv = solve_triu(R, eye(size(R,1)));
-        else
-            Rinv = inv(R); % fast for triu. Faster: solve_triu(R, eye(size(R))); from lightspeed toolbox
-        end%if
+        Rinv = R \ eye(size(R)); %inv(R); % fast for upper triangular
         U    = Rinv * Rinv';
     else
         warning([mfilename ':NotPosDef'], ...

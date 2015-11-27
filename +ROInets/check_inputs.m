@@ -107,6 +107,12 @@ EnvParamsDefault = struct('windowLength', 2, ...
                           'useFilter',    false);
 Inputs.addParamValue('EnvelopeParams', EnvParamsDefault, @isstruct);
 
+SubjectLevelDefault = [];
+Inputs.addParamValue('SubjectLevel', SubjectLevelDefault, @(s) isempty(s) || isstruct(s));
+
+GroupLevelDefault = [];
+Inputs.addParamValue('GroupLevel', GroupLevelDefault, @(s) isempty(s) || isstruct(s));
+
 freqBandDefault = {[]};
 Inputs.addParamValue('frequencyBands', freqBandDefault, @iscell);
 
@@ -131,6 +137,13 @@ Inputs.addParamValue('gridStep',    8,          numericValidFcn);
 %% Parse inputs
 Inputs.parse(Settings);
 
+% add any further useful options
+Settings                     = Inputs.Results;
+Settings.dateRun             = datestr(now, 31);
+Settings.nSessions           = max(double(ischar(Settings.sessionName)), ...
+                                   length(Settings.sessionName));
+Settings.nFreqBands          = length(Inputs.Results.frequencyBands);
+
 % check any required inputs
 if any(strcmpi('spatialBasisSet', Inputs.UsingDefaults)), 
     error([mfilename ':ParcelFileNotFound'], ...
@@ -145,7 +158,7 @@ end%if
 % check time range parameters
 if ~isempty(Inputs.Results.timeRange),
     if iscell(Inputs.Results.timeRange),
-        assert(isequal(length(Inputs.Results.timeRange), 1),                ... % only one session at a time for this function.
+        assert(isequal(length(Inputs.Results.timeRange), Settings.nSessions), ... 
                [Inputs.FunctionName ':BadTimeRangeCellLength'],             ...
                ['%s: timeRange input must be empty, a time range as a ',    ...
                 'two-component vector, or a cell array of two-component ',  ...
@@ -195,15 +208,38 @@ for iff = 1:length(ff),
     end%if
 end%for
 
+Settings.EnvelopeParams      = EnvelopeParams;                             % incorporate defaults
+Settings.SaveCorrected       = SaveCorrected;                              % incorporate defaults
 
 % check regularization parameters
-Reg = Inputs.Results.Regularize;
+Settings.Regularize = check_regularization(Inputs.Results.Regularize, ...
+                                           Inputs.Results.leakageCorrectionMethod);
+
+% check first level options
+if ~isempty(Settings.SubjectLevel),
+    check_first_level(Settings.SubjectLevel);
+    Settings.paradigm     = 'task';
+else
+    Settings.paradigm     = 'rest';
+end%if
+
+% and grouip level options
+check_group_level(Settings.GroupLevel, Settings.nSessions);
+
+%% Output
+out = Settings;
+end%check_inputs
+
+
+function Reg = check_regularization(Reg, leakageCorrectionMethod)
+%CHECK_REGULARIZATION
+
 assert(isfield(Reg, 'do') && islogical(Reg.do), ...
        [mfilename ':IncorrectRegularizationSpecification'], ...
        'The Regularize input must be a structure with a logical field ''do''. \n');
 if Reg.do,
-    if strcmpi(Inputs.Results.leakageCorrectionMethod, 'pairwise'),
-        Inputs.Results.Regularize.do = false;
+    if strcmpi(leakageCorrectionMethod, 'pairwise'),
+        Reg.do = false;
         warning([mfilename ':noRegularizationForPairwise'],                    ...
                 ['It is not possible to compute regularized partial ',         ...
                  'correlation using the pairwise leakage correction method, ', ...
@@ -247,20 +283,55 @@ if Reg.do,
            end%if
     end%if
 end%if
+end%check_regularization
 
+function check_first_level(FirstLevel)
+%CHECK_FIRST_LEVEL
 
-% add any further useful options
-Settings                     = Inputs.Results;
-Settings.Regularize          = Reg;                                        % incorporate defaults
-Settings.dateRun             = datestr(now, 31);
-Settings.nSessions           = 1;
-Settings.nFreqBands          = length(Inputs.Results.frequencyBands);
-Settings.EnvelopeParams      = EnvelopeParams;                             % incorporate defaults
-Settings.SaveCorrected       = SaveCorrected;                              % incorporate defaults
+% are we running task analysis?
+if isempty(FirstLevel),
+    return
+end%if
 
+assert(isfield(FirstLevel, 'designSummary') && iscell(FirstLevel.designSummary), ...
+       [mfilename ':noDesignSummary'],       ...
+       'SubjectLevel.designSummary not specified properly. \n');
+   
+assert(isfield(FirstLevel, 'conditionLabel') && iscell(FirstLevel.conditionLabel), ...
+       [mfilename ':noConditionLabel'],       ...
+       'SubjectLevel.conditionLabel not specified properly. \n');
 
+assert(isfield(FirstLevel, 'contrasts') && iscell(FirstLevel.contrasts), ...
+       [mfilename ':noConrasts'],       ...
+       'SubjectLevel.contrasts not specified properly. \n');
+   
+end%check_first_level
 
-%% Output
-out = Settings;
-end%check_inputs
+function check_group_level(GroupLevel, nSessions)
+%CHECK_GROUP_LEVEL
+
+% are we running a group level analysis?
+if isempty(GroupLevel),
+    return
+end%if
+
+assert(isfield(GroupLevel, 'designMatrix') && ismatrix(GroupLevel.designMatrix), ...
+       [mfilename ':noDesignMatrix'],       ...
+       'GroupLevel.designMatrix not specified properly. \n');
+   
+assert(isfield(GroupLevel, 'contrasts') && ismatrix(GroupLevel.contrasts), ...
+       [mfilename 'noGroupContrasts'], ...
+       'GroupLevel.contrasts not specified properly. \n');
+   
+[checkMe, nEVs] = size(GroupLevel.designMatrix);
+assert(checkMe == nSessions, ...
+       [mfilename ':BadGroupDesign'], ...
+       'Group level design matrix must have as many rows as subjects. \n');
+   
+[~, checkMe] = size(GroupLevel.contrasts);
+assert(checkMe == nEVs, ...
+       [mfilename ':BadContrasts'], ...
+       'Group Contrasts must have as many columns as EVs in the design matrix. \n');
+
+end%check_group_level
 % [EOF]

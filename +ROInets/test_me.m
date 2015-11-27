@@ -32,11 +32,13 @@ tilde = '/Users/gilesc';
 dataDir = fullfile(tilde, 'data', 'ROInets-test', filesep);
 ROInets.make_directory(dataDir);
 
-tmp = load('/Users/gilesc/data/Henry/OIL-output/analysis-for-parcellation-paper/OIL_4-30Hz_8mm.oil/oil_2s_win_8mm_grid_concatenated_subject_data_spatial_ica_40comps_0_its/oil.mat', 'oil');
-[data, time, sampleRateInHz] = MEGsim.get_source_data(tmp.oil, '9_ctf_3-state_eo_recon');
-dataFile = fullfile(dataDir, 'source_data.mat');
-save(dataFile, 'data', 'time', 'sampleRateInHz', '-v7.3');
-clear data time Fs
+% tmp = load('/Users/gilesc/data/Henry/OIL-output/analysis-for-parcellation-paper/OIL_4-30Hz_8mm.oil/oil_2s_win_8mm_grid_concatenated_subject_data_spatial_ica_40comps_0_its/oil.mat', 'oil');
+% [data, time, sampleRateInHz] = MEGsim.get_source_data(tmp.oil, '9_ctf_3-state_eo_recon');
+% dataFile = fullfile(dataDir, 'source_data.mat');
+% save(dataFile, 'data', 'time', 'sampleRateInHz', '-v7.3');
+% clear data time Fs
+
+dataFile = '/Users/gilesc/data/schizophrenia/source-data/Slcmv_Adffj1001_resting_proc.mat';
 
 % choose a binary ROI map. Take care that the resolution of the nifti file
 % matches that of the source reconstruction.
@@ -62,11 +64,12 @@ Settings.Regularize.do            = true;                           % use regula
 Settings.Regularize.path          = logspace(-9,2,80);              % This specifies a single, or vector, of possible rho-parameters controlling the strength of regularization. 
 Settings.Regularize.method        = 'Friedman';                     % Regularization approach to take. {'Friedman' or 'Bayesian'}
 Settings.Regularize.adaptivePath  = true;                           % adapth the regularization path if necessary
-Settings.leakageCorrectionMethod  = 'closest';                      % choose from 'symmetric', 'pairwise' or 'none'. 
+Settings.leakageCorrectionMethod  = 'closest';                      % choose from 'closest', 'symmetric', 'pairwise' or 'none'. 
 Settings.nEmpiricalSamples        = 8;                              % convert correlations to standard normal z-statistics using a simulated empirical distribution. This controls how many times we simulate data of the same size as the analysis dataset
 Settings.ARmodelOrder             = 1;                              % We tailor the empirical data to have the same temporal smoothness as the MEG data. An order of 1 should be ok.
 Settings.EnvelopeParams.windowLength = 2; % s                       % sliding window length for power envelope calculation. See Brookes 2011, 2012 and Luckhoo 2012. 
 Settings.EnvelopeParams.useFilter    = true;                        % use a more sophisticated filter than a sliding window average
+Settings.EnvelopeParams.takeLogs  = true;
 Settings.frequencyBands           = {[8 13]};                       % a set of frequency bands for analysis. Set to empty to use broadband. The bandpass filtering is performed before orthogonalisation. 
 Settings.timecourseCreationMethod = 'spatialBasis';                 % 'PCA', 'mean', 'peakVoxel' or 'spatialBasis'
 Settings.outputDirectory          = outDir;                         % Set a directory for the results output
@@ -74,7 +77,7 @@ Settings.groupStatisticsMethod    = 'mixed-effects';                % 'mixed-eff
 Settings.FDRalpha                 = 0.05;                           % false determination rate significance threshold
 Settings.sessionName              = sessionName; 
 Settings.SaveCorrected.timeCourse    = false;
-Settings.SaveCorrected.envelope      = true;
+Settings.SaveCorrected.envelopes      = true;
 Settings.SaveCorrected.variances     = true;
 Settings.SaveCorrected.ROIweightings = true;
 
@@ -99,11 +102,12 @@ Settings.timeRange                = [];                             % range of t
 Settings.Regularize.do            = true;                           % use regularization on partial correlation matrices using the graphical lasso. 
 Settings.Regularize.method        = 'Bayesian';                     % Regularization approach to take. {'Friedman' or 'Bayesian'}
 Settings.Regularize.Prior         = struct('a', 1./3, 'b', 0);
-Settings.leakageCorrectionMethod  = 'symmetric';                      % choose from 'symmetric', 'pairwise' or 'none'. 
+Settings.leakageCorrectionMethod  = 'symmetric';                      % choose from 'closest', 'symmetric', 'pairwise' or 'none'. 
 Settings.nEmpiricalSamples        = 8;                              % convert correlations to standard normal z-statistics using a simulated empirical distribution. This controls how many times we simulate data of the same size as the analysis dataset
 Settings.ARmodelOrder             = 1;                              % We tailor the empirical data to have the same temporal smoothness as the MEG data. An order of 1 should be ok.
 Settings.EnvelopeParams.windowLength = 2; % s                       % sliding window length for power envelope calculation. See Brookes 2011, 2012 and Luckhoo 2012. 
 Settings.EnvelopeParams.useFilter    = true;                        % use a more sophisticated filter than a sliding window average
+Settings.EnvelopeParams.takeLogs  = true;
 Settings.frequencyBands           = {[8 13]};                       % a set of frequency bands for analysis. Set to empty to use broadband. The bandpass filtering is performed before orthogonalisation. 
 Settings.timecourseCreationMethod = 'PCA';                          % 'PCA', 'mean', 'peakVoxel' or 'spatialBasis'
 Settings.outputDirectory          = outDir;                         % Set a directory for the results output
@@ -111,7 +115,7 @@ Settings.groupStatisticsMethod    = 'fixed-effects';                % 'mixed-eff
 Settings.FDRalpha                 = 0.05;                           % false determination rate significance threshold
 Settings.sessionName              = sessionName; 
 Settings.SaveCorrected.timeCourse    = false;
-Settings.SaveCorrected.envelope      = false;
+Settings.SaveCorrected.envelopes      = false;
 Settings.SaveCorrected.variances     = false;
 Settings.SaveCorrected.ROIweightings = false;
 
@@ -130,20 +134,21 @@ Settings.spatialBasisSet          = parcelFile;                     % a binary f
 Settings.gridStep                 = 8; % mm                         % resolution of source recon and nifti parcellation file
 Settings.timeRange                = {[0 120]};                             % range of times to use for analysis
 Settings.Regularize.do            = false;                           % use regularization on partial correlation matrices using the graphical lasso. 
-Settings.leakageCorrectionMethod  = 'pairwise';                      % choose from 'symmetric', 'pairwise' or 'none'. 
+Settings.leakageCorrectionMethod  = 'pairwise';                      % choose from 'closest', 'symmetric', 'pairwise' or 'none'. 
 Settings.nEmpiricalSamples        = 8;                              % convert correlations to standard normal z-statistics using a simulated empirical distribution. This controls how many times we simulate data of the same size as the analysis dataset
 Settings.ARmodelOrder             = 1;                              % We tailor the empirical data to have the same temporal smoothness as the MEG data. An order of 1 should be ok.
 Settings.EnvelopeParams.windowLength = 2; % s                       % sliding window length for power envelope calculation. See Brookes 2011, 2012 and Luckhoo 2012. 
 Settings.EnvelopeParams.overlap   = 0.5;
 Settings.EnvelopeParams.useFilter    = false;                        % use a more sophisticated filter than a sliding window average
+Settings.EnvelopeParams.takeLogs  = false;
 Settings.frequencyBands           = {[]};                       % a set of frequency bands for analysis. Set to empty to use broadband. The bandpass filtering is performed before orthogonalisation. 
-Settings.timecourseCreationMethod = 'mean';                          % 'PCA', 'mean', 'peakVoxel' or 'spatialBasis'
+Settings.timecourseCreationMethod = 'mean';                          % 'PCA', 'peakVoxel' or 'spatialBasis'
 Settings.outputDirectory          = outDir;                         % Set a directory for the results output
 Settings.groupStatisticsMethod    = 'fixed-effects';                % 'mixed-effects' or 'fixed-effects'
 Settings.FDRalpha                 = 0.05;                           % false determination rate significance threshold
 Settings.sessionName              = sessionName; 
 Settings.SaveCorrected.timeCourse    = false;
-Settings.SaveCorrected.envelope      = false;
+Settings.SaveCorrected.envelopes      = false;
 Settings.SaveCorrected.variances     = false;
 Settings.SaveCorrected.ROIweightings = false;
 
@@ -152,6 +157,91 @@ try
     correlationMats = ROInets.run_individual_network_analysis(dataFile, Settings, resultsName);
 catch ME
     fprintf('%s: Test 3 failed. \n', mfilename);
+    rethrow(ME);
+end%try
+
+
+
+%% Test 4 trial data, one subj
+dataFile = '/Users/gilesc/data/MND-malcolm/Motor_beta.oat/concatMfsession12_spm_meeg.mat';
+% setup the ROI network settings
+Settings = struct();
+Settings.spatialBasisSet          = parcelFile;                     % a binary file which holds the voxel allocation for each ROI - voxels x ROIs
+Settings.gridStep                 = 8; % mm                         % resolution of source recon and nifti parcellation file
+Settings.timeRange                = {[0.01 3.99]};                             % range of times to use for analysis
+Settings.Regularize.do            = false;                           % use regularization on partial correlation matrices using the graphical lasso. 
+Settings.leakageCorrectionMethod  = 'closest';                      % choose from 'closest', 'symmetric', 'pairwise' or 'none'. 
+Settings.nEmpiricalSamples        = 1;                              % convert correlations to standard normal z-statistics using a simulated empirical distribution. This controls how many times we simulate data of the same size as the analysis dataset
+Settings.EnvelopeParams.windowLength = 1/40; % s                       % sliding window length for power envelope calculation. See Brookes 2011, 2012 and Luckhoo 2012. 
+Settings.EnvelopeParams.useFilter = true;                        % use a more sophisticated filter than a sliding window average
+Settings.EnvelopeParams.takeLogs  = true;
+Settings.frequencyBands           = {[4 30]};                       % a set of frequency bands for analysis. Set to empty to use broadband. The bandpass filtering is performed before orthogonalisation. 
+Settings.timecourseCreationMethod = 'PCA';                          % 'PCA', 'mean', 'peakVoxel' or 'spatialBasis'
+Settings.outputDirectory          = outDir;                         % Set a directory for the results output
+Settings.groupStatisticsMethod    = 'mixed-effects';                % 'mixed-effects' or 'fixed-effects'
+Settings.FDRalpha                 = 0.05;                           % false determination rate significance threshold
+Settings.sessionName              = sessionName; 
+Settings.SaveCorrected.timeCourse    = false;
+Settings.SaveCorrected.envelopes      = false;
+Settings.SaveCorrected.variances     = false;
+Settings.SaveCorrected.ROIweightings = false;
+Settings.SubjectLevel.conditionLabel   = {'longvalidR', 'longvalidL', 'ShortValidRight', 'ShortValidLeft'};
+Settings.SubjectLevel.designSummary    = {[1 0 0 0]', [0 1 0 0], [0 0 1 0]', [0 0 0 1]};
+Settings.SubjectLevel.contrasts        = {[1 0 1 0]; [1 -1 1 -1]};
+
+Settings = ROInets.check_inputs(Settings);
+try
+    CorrMats = ROInets.run_individual_network_analysis_task(dataFile, ...
+                                                           Settings, ...
+                                                            resultsName);
+catch ME
+    fprintf('%s: Test 4 failed. \n', mfilename);
+    rethrow(ME);
+end%try
+
+%% Test 4 trial data, several subj
+dataFiles = {'/Users/gilesc/data/MND-malcolm/Motor_beta.oat/concatMfsession12_spm_meeg.mat'; ...
+             '/Users/gilesc/data/MND-malcolm/Motor_beta.oat/concatMfsession120_spm_meeg.mat'; ...
+             '/Users/gilesc/data/MND-malcolm/Motor_beta.oat/concatMfsession121_spm_meeg.mat'; ...
+             '/Users/gilesc/data/MND-malcolm/Motor_beta.oat/concatMfsession122_spm_meeg.mat'};
+% setup the ROI network settings
+Settings = struct();
+Settings.spatialBasisSet          = parcelFile;                     % a binary file which holds the voxel allocation for each ROI - voxels x ROIs
+Settings.gridStep                 = 8; % mm                         % resolution of source recon and nifti parcellation file
+Settings.timeRange                = [0.01 3.99];                             % range of times to use for analysis
+Settings.Regularize.do            = true;                           % use regularization on partial correlation matrices using the graphical lasso. 
+Settings.Regularize.path          = 0.001;              % This specifies a single, or vector, of possible rho-parameters controlling the strength of regularization. 
+Settings.Regularize.method        = 'Friedman';                     % Regularization approach to take. {'Friedman' or 'Bayesian'}
+Settings.Regularize.adaptivePath  = false;                           % adapth the regularization path if necessary
+Settings.leakageCorrectionMethod  = 'closest';                      % choose from 'closest', 'symmetric', 'pairwise' or 'none'. 
+Settings.nEmpiricalSamples        = 1;                              % convert correlations to standard normal z-statistics using a simulated empirical distribution. This controls how many times we simulate data of the same size as the analysis dataset
+Settings.EnvelopeParams.windowLength = 1/40; % s                       % sliding window length for power envelope calculation. See Brookes 2011, 2012 and Luckhoo 2012. 
+Settings.EnvelopeParams.useFilter = true;                        % use a more sophisticated filter than a sliding window average
+Settings.EnvelopeParams.takeLogs  = true;
+Settings.frequencyBands           = {[]};                       % a set of frequency bands for analysis. Set to empty to use broadband. The bandpass filtering is performed before orthogonalisation. 
+Settings.timecourseCreationMethod = 'PCA';                          % 'PCA', 'mean', 'peakVoxel' or 'spatialBasis'
+Settings.outputDirectory          = outDir;                         % Set a directory for the results output
+Settings.groupStatisticsMethod    = 'mixed-effects';                % 'mixed-effects' or 'fixed-effects'
+Settings.FDRalpha                 = 0.05;                           % false determination rate significance threshold
+Settings.sessionName              = {'sess1', 'sess2', 'sess3', 'sess4'}; 
+Settings.SaveCorrected.timeCourse    = false;
+Settings.SaveCorrected.envelopes      = false;
+Settings.SaveCorrected.variances     = false;
+Settings.SaveCorrected.ROIweightings = false;
+Settings.SubjectLevel.conditionLabel   = {'longvalidR', 'longvalidL', 'ShortValidRight', 'ShortValidLeft'};
+Settings.SubjectLevel.designSummary    = {[1 0 0 0]', [0 1 0 0], [0 0 1 0]', [0 0 0 1]};
+Settings.SubjectLevel.contrasts        = {[1 0 1 0]; [1 -1 1 -1]};
+Settings.GroupLevel.designMatrix       = [1 0
+                                          1 0
+                                          0 1
+                                          0 1];
+Settings.GroupLevel.contrasts          = [1  1;  % contrast 1
+                                          1 -1]; % contrast 2
+
+try
+    CorrMats = osl_network_analysis(dataFiles, Settings);
+catch ME
+    fprintf('%s: Test 4 failed. \n', mfilename);
     rethrow(ME);
 end%try
 
