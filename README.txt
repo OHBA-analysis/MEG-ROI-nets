@@ -1,4 +1,6 @@
-ROInets.README.txt
+Region-of-Interest network analysis for MEG data
+Giles Colclough
+Oxford Centre for Human Brain Activity, 2015
 
 
 
