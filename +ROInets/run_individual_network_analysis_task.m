@@ -366,8 +366,8 @@ end%if
                                         Settings.timeRange, iSession);
 
 %% Identify trials to use and set up design matrix
-[designMat, goodTrials, trialID] = set_up_first_level(D, Settings, ...
-                                                      find(trialsWithBadSamples));
+[designMat, goodTrials] = set_up_first_level(D, Settings, ...
+                                             find(trialsWithBadSamples));
  
 %% Perform separate analyses in each frequency band
 for iFreq = Settings.nFreqBands:-1:1,
