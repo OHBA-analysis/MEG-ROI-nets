@@ -74,7 +74,7 @@ if strcmpi(Settings.paradigm, 'rest'),
     
 elseif strcmpi(Settings.paradigm, 'task'),
     % we need to run a separate GLM for each first level contrast. 
-    % And for each group-evel contrast.
+    % And for each group-level contrast.
     % What a mare.
     for iContrast = length(Settings.SubjectLevel.contrasts):-1:1,
             [T, p, corrp] = ROInets.univariate_edge_test(correlationMats{iFreq}.firstLevel(iContrast).cope.correlation, ...

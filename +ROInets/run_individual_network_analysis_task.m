@@ -471,7 +471,8 @@ for iFreq = Settings.nFreqBands:-1:1,
     %% Run first-level GLM
     CorrMats{iFreq}.firstLevel = run_first_level_glm(CorrMats{iFreq},    ...
                                                      designMat,          ...
-                                                     Settings.SubjectLevel.contrasts);
+                                                     Settings.SubjectLevel.contrasts, ...
+													 D.fname);
     % clean up filtered object
     delete(cleanD);
 end%loop over freq bands
@@ -493,7 +494,7 @@ end%run_individual_correlation_analysis
 
 
 %--------------------------------------------------------------------------
-function FirstLevel = run_first_level_glm(CorrMats, designMat, contrasts)
+function FirstLevel = run_first_level_glm(CorrMats, designMat, contrasts, fileName)
 %RUN_FIRST_LEVEL_GLM
 %
 
@@ -520,9 +521,31 @@ for iContrast = 1:nContrasts,
 end%for
    
 % Precompute some helpful things
-RXtX   = chol(designMat' * designMat);
-invXtX = RXtX \ (RXtX' \ eye(nRegressors));
-pinvX  = RXtX \ (RXtX' \ designMat');
+XtX       = designMat' * designMat;
+[RXtX, p] = chol(XtX);
+if ~p,
+	invXtX = RXtX \ (RXtX' \ eye(nRegressors));
+	pinvX  = RXtX \ (RXtX' \ designMat');
+	hasBadEVs = false;
+else
+	% design matrix was rank deficient
+	% is that because we have missing information for certain trial types?
+	badEVs    = all(0 == designMat);
+	hasBadEVs = any(badEVs);
+	if hasBadEVs,
+		warning([mfilename ':MissingTrials'], ...
+			    '%s: file %s is missing trials for %d EVs. \n', ...
+				mfilename, fileName, sum(badEVs));
+		badContrasts = any(useContrasts(:,badEVs),2);
+		invXtX = pinv(XtX);
+		pinvX  = invXtX * designMat';
+	else
+		error([mfilename ':RankDeficientDesign'],                     ...
+			  ['%s: the design matrix is rank deficient. ',           ...
+			   'Check that you''ve specified your EVs sensibly. \n'], ...
+			  mfilename);
+	end%if
+end%if
 
 % declare memory
 [rho, prho, prhoReg] = deal(zeros(nModes, nModes, nContrasts));
@@ -534,9 +557,16 @@ for i = 1:nModes,
                                       designMat, invXtX, pinvX, useContrasts, 0);
         prho(i,j,:) = glm_fast_for_meg(squeeze(CorrMats.envPartialCorrelation_z(i,j,:)), ...
                                       designMat, invXtX, pinvX, useContrasts, 0);
+								  
+	    % fill in uninformative values with NaN.
+		if hasBadEVs,
+			rho(i,j,badContrasts)  = NaN;
+			prho(i,j,badContrasts) = NaN;
+		end%if
         if isfield(CorrMats, 'envPartialCorrelationRegularized_z'),
         prhoReg(i,j,1:nContrasts) = glm_fast_for_meg(squeeze(CorrMats.envPartialCorrelationRegularized_z(i,j,:)), ...
                                       designMat, invXtX, pinvX, useContrasts, 0); 
+        prhoReg(i,j,badContrasts) = NaN;
         else
             prhoReg(i,j) = 0;
         end%if
@@ -615,7 +645,7 @@ else
         tR = timeRange;
     end%if
     validateattributes(tR, {'numeric'}, ...
-                       {'vector', 'numel', 2, 'nonnegative', 'nondecreasing'}, ...
+                       {'vector', 'numel', 2, 'nondecreasing'}, ... % can have negative times in task data. 
                        'time_range', 'timeRange', 2);
                    
     tI = (time <= tR(2)) & (time >= tR(1));
