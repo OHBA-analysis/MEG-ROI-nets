@@ -526,17 +526,18 @@ XtX       = designMat' * designMat;
 if ~p,
 	invXtX = RXtX \ (RXtX' \ eye(nRegressors));
 	pinvX  = RXtX \ (RXtX' \ designMat');
-	hasBadEVs = false;
+	hasBadEVs    = false;
+	badContrasts = false(nContrasts, 1);
 else
 	% design matrix was rank deficient
 	% is that because we have missing information for certain trial types?
 	badEVs    = all(0 == designMat);
 	hasBadEVs = any(badEVs);
 	if hasBadEVs,
-		warning([mfilename ':MissingTrials'], ...
+		warning([mfilename ':MissingTrials'],                   ...
 			    '%s: file %s is missing trials for %d EVs. \n', ...
 				mfilename, fileName, sum(badEVs));
-		badContrasts = any(useContrasts(:,badEVs),2);
+		badContrasts = cellfun(@(C) C(badEVs), useContrasts);
 		invXtX = pinv(XtX);
 		pinvX  = invXtX * designMat';
 	else
