@@ -537,7 +537,7 @@ else
 		warning([mfilename ':MissingTrials'],                   ...
 			    '%s: file %s is missing trials for %d EVs. \n', ...
 				mfilename, fileName, sum(badEVs));
-		badContrasts = cellfun(@(C) C(badEVs), useContrasts);
+		badContrasts = logical(cellfun(@(C) any(C(badEVs)), useContrasts));
 		invXtX = pinv(XtX);
 		pinvX  = invXtX * designMat';
 	else
