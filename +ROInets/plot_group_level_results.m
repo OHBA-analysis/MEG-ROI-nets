@@ -44,7 +44,7 @@ end%if
 
 nFreqs                    = Settings.nFreqBands;
 nFreqsCheck               = length(correlationMats);
-nFirstLevelContrasts      = length(Settnings.SubjectLevel.contrasts);
+nFirstLevelContrasts      = length(Settings.SubjectLevel.contrasts);
 nFirstLevelContrastsCheck = length(correlationMats{1}.firstLevel);
 nGroupLevelContrasts      = ROInets.rows(Settings.GroupLevel.contrasts);
 nGroupLevelContrastsCheck = size(correlationMats{1}.groupLevel(1).correlation.T,3);
@@ -104,7 +104,7 @@ for iFreq = 1:nFreqs,
 			imagesc(plotMat(ROIorder,ROIorder));
 			colormap(bluewhitered);
 			set(gca, 'XTick', 1:nROIs, 'XTickLabel', ROInames);
-			set(h,...
+			set(gca,...
 				'FontName', 'Helvetica', ...
 				'FontSize', FONTSIZE, ...
 				'Box', 'on', ...
