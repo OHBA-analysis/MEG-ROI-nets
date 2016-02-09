@@ -1,14 +1,18 @@
-function plot_group_level_results(correlationMats, Settings, netType, correctionType, ROInames, ROIorder)
+function plot_group_level_results(correlationMats, Settings, netType, correctionType, ROInames, ROIorder, firstLevelConsToPlot, groupLevelConsToPlot)
 %PLOT_GROUP_LEVEL_RESULTS
 %
 % PLOT_GROUP_LEVEL_RESULTS(CORRELATIONMATS, SETTINGS, NETTYPE, CORRECTIONTYPE, 
-%                          ROINAMES, ROIORDER)
+%                          ROINAMES, ROIORDER, FIRSTLEVELCONSTOPLOT, 
+%						   GROUPLEVELCONSTOPLOT)
 %   plots results from group-level network analysis. 
 %
 %   Takes in CORRELATIONMATS, output from osl_network_analysis. Plots
 %   heatmaps of significance using multiple comparisons CORRECTIONTYPE
 %   for network analysis method NETTYPE. Plots will be labelled using cell
-%   array ROINAMES, with optional permutation of ROIs ROIORDER. 
+%   array ROINAMES, with optional permutation of ROIs ROIORDER. Chooses
+%   which FIRSTLEVELCONSTOPLOT and GROUPLEVELCONSTOPLOT. 
+%
+%   The last four options can be omitted or set to [] to receive defaults
 %
 %   NETTYPE: - 'correlation'
 %			 - 'partialCorrelation'
@@ -71,13 +75,22 @@ if nargin >= 6 && ~isempty(ROIorder),
 else
 	ROIorder = 1:nROIs;
 end%if
-
+if nargin >= 7 && ~isempty(firstLevelConsToPlot),
+	assert(all(ismember(firstLevelConsToPlot, 1:nFirstLevelContrasts)));
+else
+	firstLevelConsToPlot = 1:nFirstLevelContrasts;
+end%if
+if nargin >= 8 && ~isempty(groupLevelConsToPlot),
+	assert(all(ismember(groupLevelConsToPlot, 1:nGroupLevelContrasts)));
+else
+	groupLevelConsToPlot = 1:nGroupLevelContrasts;
+end%if
 %% Let's plot away
 FONTSIZE = 15;
 for iFreq = 1:nFreqs,
-	for iConFirst = 1:nFirstLevelContrasts,
+	for iConFirst = firstLevelConsToPlot,
 			matBase = correlationMats{iFreq}.groupLevel(iConFirst).(netType);
-		for iConGroup = 1:nGroupLevelContrasts,
+		for iConGroup = groupLevelConsToPlot,
 			CAXIS = [0 3];
 			switch correctionType
 				case 'T'
@@ -102,8 +115,7 @@ for iFreq = 1:nFreqs,
 				                iFreq, iConFirst, iConGroup, netType, correctionType);
 		    figure('Name', plotTitle, 'Color', 'w');
 			imagesc(plotMat(ROIorder,ROIorder));
-			colormap(bluewhitered);
-			set(gca, 'XTick', 1:nROIs, 'XTickLabel', ROInames);
+			set(gca, 'YTick', 1:nROIs, 'YTickLabel', ROInames);
 			set(gca,...
 				'FontName', 'Helvetica', ...
 				'FontSize', FONTSIZE, ...
@@ -116,7 +128,10 @@ for iFreq = 1:nFreqs,
 				'YMinorTick', 'off', ...
 				'XColor', [0.3 0.3 0.3], ...
 				'YColor', [0.3 0.3 0.3], ...
-				'LineWidth', 2);			
+				'LineWidth', 2);	
+			caxis(CAXIS);
+			colormap(bluewhitered);
+			axis square
 			colorbar;
 		end%for
 	end%for
