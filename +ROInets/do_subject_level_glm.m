@@ -57,18 +57,27 @@ for iFreq = Settings.nFreqBands:-1:1,
 				  'Expected input to have first level results. \n');
 		end%if
 		
+		% find any subjects which have nan entries. They will need to be
+		% removed from the data and design matrix. 
+		% It's a safe assumption that NaNs encode subjects without
+		% sufficient information in trials to estimate parameters 
+		% They will therefore be nan over all edges, and for each of
+		% correlation, partialcorr and the regularised version
+		nanSessions = any(isnan(COPE.correlation),3);
+		cleanDesign = subjectDesign(~nanSessions,:);
+		
 		
 		%-- correlation
-		beta = subjectDesign \ ROInets.get_edges(COPE.correlation)';
+		beta = cleanDesign \ ROInets.get_edges(COPE.correlation(:,:,~nanSessions))';
 		subjectLevel(iContrast).cope.correlation = ROInets.unvectorize(beta');
 
 		%-- partial correlation
-        beta = subjectDesign \ ROInets.get_edges(COPE.partialCorrelation)';
+        beta = cleanDesign \ ROInets.get_edges(COPE.partialCorrelation(:,:,~nanSessions))';
 		subjectLevel(iContrast).cope.partialCorrelation = ROInets.unvectorize(beta');
 
 		%-- regularised partial correlation
         if Settings.Regularize.do,
-            beta = subjectDesign \ ROInets.get_edges(COPE.partialCorrelationRegularized)';
+            beta = cleanDesign \ ROInets.get_edges(COPE.partialCorrelationRegularized(:,:,~nanSessions))';
 			subjectLevel(iContrast).cope.partialCorrelationRegularized = ROInets.unvectorize(beta');
         end%if
         % add in first levels for reference
