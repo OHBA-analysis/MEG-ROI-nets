@@ -60,16 +60,16 @@ for iFreq = Settings.nFreqBands:-1:1,
 		
 		%-- correlation
 		beta = subjectDesign \ ROInets.get_edges(COPE.correlation)';
-		subjectLevel(iContrast).cope.correlation = ROInets.unvectorize(beta);
+		subjectLevel(iContrast).cope.correlation = ROInets.unvectorize(beta');
 
 		%-- partial correlation
         beta = subjectDesign \ ROInets.get_edges(COPE.partialCorrelation)';
-		subjectLevel(iContrast).cope.correlation = ROInets.unvectorize(beta);
+		subjectLevel(iContrast).cope.partialCorrelation = ROInets.unvectorize(beta');
 
 		%-- regularised partial correlation
         if Settings.Regularize.do,
             beta = subjectDesign \ ROInets.get_edges(COPE.partialCorrelationRegularized)';
-			subjectLevel(iContrast).cope.correlation = ROInets.unvectorize(beta);
+			subjectLevel(iContrast).cope.partialCorrelationRegularized = ROInets.unvectorize(beta');
         end%if
         % add in first levels for reference
         subjectLevel(iContrast).firstLevelContrast        = Settings.SubjectLevel.contrasts{iContrast};
