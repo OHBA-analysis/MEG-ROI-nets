@@ -63,21 +63,22 @@ for iFreq = Settings.nFreqBands:-1:1,
 		% sufficient information in trials to estimate parameters 
 		% They will therefore be nan over all edges, and for each of
 		% correlation, partialcorr and the regularised version
-		nanSessions = any(isnan(COPE.correlation),3);
-		cleanDesign = subjectDesign(~nanSessions,:);
+		nanSessions  = any(isnan(COPE.correlation),3);
+		goodSessions = logical(squeeze(~nanSessions));
+		cleanDesign  = subjectDesign(goodSessions,:);
 		
 		
 		%-- correlation
-		beta = cleanDesign \ ROInets.get_edges(COPE.correlation(:,:,~nanSessions))';
+		beta = cleanDesign \ ROInets.get_edges(COPE.correlation(:,:,goodSessions))';
 		subjectLevel(iContrast).cope.correlation = ROInets.unvectorize(beta');
 
 		%-- partial correlation
-        beta = cleanDesign \ ROInets.get_edges(COPE.partialCorrelation(:,:,~nanSessions))';
+        beta = cleanDesign \ ROInets.get_edges(COPE.partialCorrelation(:,:,goodSessions))';
 		subjectLevel(iContrast).cope.partialCorrelation = ROInets.unvectorize(beta');
 
 		%-- regularised partial correlation
         if Settings.Regularize.do,
-            beta = cleanDesign \ ROInets.get_edges(COPE.partialCorrelationRegularized(:,:,~nanSessions))';
+            beta = cleanDesign \ ROInets.get_edges(COPE.partialCorrelationRegularized(:,:,goodSessions))';
 			subjectLevel(iContrast).cope.partialCorrelationRegularized = ROInets.unvectorize(beta');
         end%if
         % add in first levels for reference
