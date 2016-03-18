@@ -56,8 +56,19 @@ while iter < MAX_ITER,
     iter = iter + 1;
     
     % find orthonormal polar factor
-    V = ROInets.symmetric_orthogonalise(A * diag(d));
-    
+	try
+		V = ROInets.symmetric_orthogonalise(A * diag(d));
+
+    catch ME
+		% use suppression of some variables such that rank is reduced as a
+		% stopping criterion
+		if iter > 1 && regexp(ME.identifier, 'RankError'),
+			% stop the process and use that last L computed. 
+			rank_reduction_warning();
+			break
+		end%if
+	end%try
+
     % minimise rho = |A - V D|^2 w.r.t d
     d = diag(A_T * V);
     
@@ -95,6 +106,23 @@ if DEBUG,
 end%if
 
 end%closest_orthogonal_matrix
+
+function [] = rank_reduction_warning()
+% This warning is produced when the orthogonalisation process runs out of
+% rank. 
+% This can happen when two vectors are very close to each other but
+% different in magnitude. The alignement process can suppress the smaller
+% vector down to zero, as there is little residual left. This, in some
+% circumstances, can reduce the rank below the dimensionality of the data.
+%
+% As L at all iterations of the algorithm are orthogonal matrices, and as
+% after one iteration the magnitudes do become close to the original set,
+% it seems like this is a fair stopping criterion.
+warning([mfilename ':RankReducedTooFar'],                                 ...
+		['%s: Orthogonalisation optimisation stopped when rank reduced ', ...
+         'to limit. \n'],                                                 ...
+		mfilename);
+end%rank_reduction_warning
 % [EOF]
 
 

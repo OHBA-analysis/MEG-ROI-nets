@@ -66,7 +66,29 @@ end%if
    
 resultsDir = tempdir;
 
+%% Save out edges into nifti
+inputNifti = fullfile(resultsDir, 'network_edges.nii.gz');
+edges      = ROInets.get_edges(netmats); % note this assumes symmetry
+
+% check for NaNs - treat as subjects to be ignored. This is a good
+% representation for missing data. 
+%
+% What will we do with NaNs? Maybe impute the value as the group mean?
+% Maybe EM imputation?
+% Instead, let's remove them outright. 
+badSubjects = any(isnan(edges),1);
+cleanEdges  = edges;
+cleanEdges(:,badSubjects) = [];
+
+for iS = ROInets.cols(cleanEdges):-1:1,
+    formattedEdges(:,1,1,iS) = cleanEdges(:,iS);
+end
+save_avw(formattedEdges, inputNifti, 'f', [1 1 1 1]);
+Ci = onCleanup(@() delete(inputNifti));
+
+
 %% Construct design matrix
+designMatrix(badSubjects,:) = [];
 if standardise, 
     % demean and variance normalise
     X = bsxfun(@rdivide, bsxfun(@minus, designMatrix, mean(designMatrix)), ...
@@ -84,15 +106,6 @@ Cd = onCleanup(@() delete(designFile));
 contrastFile = fullfile(resultsDir, 'univariate_edge_test_design.con');
 ROInets.save_vest(contrasts, contrastFile);
 Cc = onCleanup(@() delete(contrastFile));
-
-%% Save out edges into nifti
-inputNifti = fullfile(resultsDir, 'network_edges.nii.gz');
-edges      = ROInets.get_edges(netmats); % note this assumes symmetry
-for iS = ROInets.cols(edges):-1:1,
-    formattedEdges(:,1,1,iS) = edges(:,iS);
-end
-save_avw(formattedEdges, inputNifti, 'f', [1 1 1 1]);
-Ci = onCleanup(@() delete(inputNifti));
 
 %% Run randomise
 outputNifti = fullfile(resultsDir, 'univariate_edge_test');

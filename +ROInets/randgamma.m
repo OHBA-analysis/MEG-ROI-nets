@@ -59,7 +59,7 @@ if 3 == exist('randgamma', 'file'),
     x = scale .* randgamma(shape);
 
 else
-    x = sale .* randg(shape);
+    x = scale .* randg(shape);
 end%if
 
 end%GC_randgamma
