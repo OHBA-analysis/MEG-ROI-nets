@@ -1,4 +1,4 @@
-function [L, d, rho] = closest_orthogonal_matrix(A)
+function [L, d, rho, W] = closest_orthogonal_matrix(A)
 %CLOSEST_ORTHOGONAL_MATRIX  Computes closest orthogonal matrix
 %
 % L = CLOSEST_ORTHOGONAL_MATRIX(A) returns orthogonal matrix L which
@@ -76,7 +76,7 @@ while iter < MAX_ITER,
     L = V * diag(d);
     
     % compute error term
-    E = A - L;
+    E         = A - L;
     rho(iter) = sum(diag( E' * E )); % inline trace
     
     if DEBUG,
@@ -87,6 +87,12 @@ while iter < MAX_ITER,
         break
     end%if
 end%convergence loop
+
+if nargout > 3,
+	% output linear operator - run once more
+	[~, ~, ~, W] = ROInets.symmetric_orthogonalise(A * diag(d));
+	W      = diag(d) * W * diag(d);
+end%if
 
 % tidy vector
 rho(isnan(rho)) = [];
