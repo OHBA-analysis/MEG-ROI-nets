@@ -57,7 +57,6 @@ rankErrorMessage = ['The ROI time-course matrix is not full rank. \n',    ...
 switch protocol
     case 'none'
         % no orthogonalisation applied to parcel time-courses
-        nodeData = ROInets.demean(nodeDataOrig, 2);
         
         
     case 'closest'
@@ -65,17 +64,19 @@ switch protocol
         % orthogonalisation then iterating to find closest orthogonal matrix
         orthogFunctionHandle = @ ROInets.closest_orthogonal_matrix;
         
-        nodeData = find_closest_orthogonal_matrix(nodeDataOrig,     ...
-                                                  rankErrorMessage, ...
-                                                  orthogFunctionHandle);
+        nodeData = find_closest_orthogonal_matrix(nodeDataOrig,         ...
+                                                  rankErrorMessage,     ...
+                                                  orthogFunctionHandle, ...
+												  protocol);
         
     case 'symmetric'
         % finds closest orthonormal matrix
         orthogFunctionHandle = @ ROInets.symmetric_orthogonalise;
         
-        nodeData = find_closest_orthogonal_matrix(nodeDataOrig,     ...
-                                                  rankErrorMessage, ...
-                                                  orthogFunctionHandle);
+        nodeData = find_closest_orthogonal_matrix(nodeDataOrig,         ...
+                                                  rankErrorMessage,     ...
+                                                  orthogFunctionHandle, ...
+												  protocol);
                                                
         
     case 'householder'
@@ -90,15 +91,21 @@ end%remove_source_leakage
 % -------------------------------------------------------------------------
 function nodeData = find_closest_orthogonal_matrix(nodeDataOrig,     ...
                                                    rankErrorMessage, ...
-                                                   orthogFunction)
+                                                   orthogFunction,   ...
+												   protocol)
 %FIND_CLOSEST_ORTHOGONAL_MATRIX wrapper on orthogonalisation functions
 nParcels = ROInets.rows(nodeDataOrig);
 
 try
     fprintf('    Orthogonalising...\n');
-    nodeData = transpose(ROInets.demean(orthogFunction(transpose( ...
-                                ROInets.demean(nodeDataOrig, 2)))));   
-
+	if isa(nodeDataOrig, 'meeg'),
+		[~, ~, ~, W] = orthogFunction(transpose(nodeDataOrig(:,:)));   
+		nodeData     = add_montage(nodeDataOrig, W, protocol);
+		
+	else
+		nodeData = transpose(orthogFunction(transpose(nodeDataOrig)));
+	end%if
+	
 % catch rank deficiency in node data
 catch ME
     if regexp(ME.identifier, 'RankError'),
@@ -130,9 +137,15 @@ fprintf('    Orthogonalising...\n');
 permutation                     = randperm(nParcels);
 permutationInverse(permutation) = 1:nParcels;
 
-nodeData = ROInets.householder_orthogonalise(...
-                 ROInets.demean(nodeDataOrig(permutation,:), 2)')'; 
-nodeData = ROInets.demean(nodeData(permutationInverse,:),    2);
+if isa(nodeDataOrig, 'meeg'),
+	% bugger the permutation bit for this faff
+	[~, ~, ~, W] = ROInets.householder_orthogonalise(nodeDataOrig(:,:).'); 
+	nodeData     = add_montage(nodeDataOrig, W, 'householder');
+else
+	nodeData = ROInets.householder_orthogonalise(nodeDataOrig(permutation,:).').'; 
+	nodeData = nodeData(permutationInverse,:);
+end
+
 end%find_orthogonal_matrix_by_householder_reflections
 
 

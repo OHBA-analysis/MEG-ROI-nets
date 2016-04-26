@@ -56,7 +56,7 @@ QPAS mex files (optional)
 
 What you need to get started:
 
-Source-reconstructed resting-state MEG data (you can probably get it to work for task)
+Source-reconstructed MEG data
 A set of ROIs or a spatial basis set, in the same space and 
   resolution as the MEG data, saved as a nifti
 
@@ -72,10 +72,14 @@ and make sure the folder (not necessarily its contents) is visible on your path
 
 View a brief summary of what each function does by typing `help ROInets.Contents'
 
-The top-level function is ROInets.run_individual_network_analysis. 
+The top-level function is osl_network_analysis. 
 View the helptext for this to view all the pipeline options. 
 
-Look at the example file (`edit ROInets.example')
+Look at the example files (`edit ROInets.example'). 
+
+Some of the subfunctions can be useful as standalones, in particular, 
+ROInets.get_node_tcs
+ROInets.remove_source_leakage
 
 Most of the functions have an attempt at informative help text.
 

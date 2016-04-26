@@ -418,7 +418,7 @@ for iFreq = Settings.nFreqBands:-1:1,
                                               real(spatialBasis),          ...
                                               tcsMethod);                  %#ok<FNDSB>
         % applying symmetric orthogonalisation if necessary
-        nodeData = ROInets.remove_source_leakage(nodeDataUnCorr, protocol);
+        nodeData = ROInets.demean(ROInets.remove_source_leakage(ROInets.demean(nodeDataUnCorr,2), protocol),2);
         
         % take power envelopes
         [nodeEnv(:,:,iT), time_ds] = ROInets.envelope_data(nodeData,        ...    

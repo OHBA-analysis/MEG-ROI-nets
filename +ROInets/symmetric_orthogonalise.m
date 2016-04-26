@@ -1,4 +1,4 @@
-function L = symmetric_orthogonalise(A, maintainMagnitudes)
+function [L, ignore, ignore2, W] = symmetric_orthogonalise(A, maintainMagnitudes)
 %SYMMETRIC_ORTHOGONALISE closest orthogonal matrix
 % 
 % L = SYMMETRIC_ORTHOGONALISE(A) returns orthonormal matrix L which
@@ -14,6 +14,9 @@ function L = symmetric_orthogonalise(A, maintainMagnitudes)
 %
 %   The orthogonal matrix is constructed from a singular value decomposition
 %   of A. 
+%
+% [L, ~, ~, W] = SYMMETRIC_ORTHOGONALISE(...) also returns a weighting matrix
+%   such that L = A * W;
 %
 %   See also: ROINETS.HOUSEHOLDER_ORTHOGONALISE, ORTH, SVD. 
 
@@ -45,15 +48,29 @@ if nargin < 2 || ~exist('maintainMagnitudes', 'var'),
     maintainMagnitudes = false;
 end
 
+[ignore, ignore2] = deal([]); % to match up with other functions
+
 if maintainMagnitudes,
     D = diag(sqrt(diag(A' * A)));
     
-    % call function again
-    Lnorm = ROInets.symmetric_orthogonalise(A * D, false);
     
-    % scale result
-    L = Lnorm * D;
-    
+	
+	if nargout > 1,
+		% call function again
+		[Lnorm, ~, ~, W] = ROInets.symmetric_orthogonalise(A * D, false);
+		
+		% scale result
+		L = Lnorm * D;
+		W = D * W * D;
+		
+	else
+		% call function again
+		Lnorm = ROInets.symmetric_orthogonalise(A * D, false);
+		
+		% scale result
+		L = Lnorm * D;
+	end%if
+	
 else
     [U, S, V] = svd(A, 'econ');
 
@@ -68,7 +85,10 @@ else
         if isFullRank,
             % polar factors of A
             L = U * conj(transpose(V));
-
+			
+			if nargout > 1,
+				W = V * diag(1.0 ./ S) * conj(transpose(V));
+			end%if
         else % not enough degrees of freedom
             error([mfilename ':RankError'], ...
                   ['The input matrix is not full rank. \n', ...
@@ -79,6 +99,7 @@ else
 
     else
         L = [];
+		W = [];
     end%if
 end%if
 end%symmetric_orthogonalise

@@ -17,6 +17,9 @@ function [T, p, corrp] = univariate_edge_test(netmats, designMatrix, contrasts, 
 %   T provides single-edge T-stats; P the uncorrected p-Values; and CORRP the
 %   FWE-corrected p-values. To use the weaker FDR correction, see
 %   ROINETS.FALSE_DISCOVERY_RATE. 
+%
+% This code demeans over subjects at the top level, so it is not good for
+% testing the whole-group mean effect.
 
 %	Copyright 2015 OHBA, FMRIB
 %	This program is free software: you can redistribute it and/or modify
@@ -51,8 +54,7 @@ assert(checkMe == nSessions, ...
        [mfilename ':BadDesign'], ...
        'Design matrix must have as many rows as subjects. \n');
    
-[nContrasts, checkMe] = size(contrasts);
-assert(checkMe == nEVs, ...
+assert(ROInets.cols(contrasts) == nEVs, ...
        [mfilename ':BadContrasts'], ...
        'Contrasts must have as many columns as EVs in the design matrix. \n');
 
@@ -64,75 +66,16 @@ else
            'Standardise input must be a logical value. \n');
 end%if
    
-resultsDir = tempdir;
+edges = ROInets.get_edges(netmats); % note this assumes symmetry
 
-%% Save out edges into nifti
-inputNifti = fullfile(resultsDir, 'network_edges.nii.gz');
-edges      = ROInets.get_edges(netmats); % note this assumes symmetry
-
-% check for NaNs - treat as subjects to be ignored. This is a good
-% representation for missing data. 
-%
-% What will we do with NaNs? Maybe impute the value as the group mean?
-% Maybe EM imputation?
-% Instead, let's remove them outright. 
-badSubjects = any(isnan(edges),1);
-cleanEdges  = edges;
-cleanEdges(:,badSubjects) = [];
-
-for iS = ROInets.cols(cleanEdges):-1:1,
-    formattedEdges(:,1,1,iS) = cleanEdges(:,iS);
-end
-save_avw(formattedEdges, inputNifti, 'f', [1 1 1 1]);
-Ci = onCleanup(@() delete(inputNifti));
-
-
-%% Construct design matrix
-designMatrix(badSubjects,:) = [];
-if standardise, 
-    % demean and variance normalise
-    X = bsxfun(@rdivide, bsxfun(@minus, designMatrix, mean(designMatrix)), ...
-                         std(designMatrix));
-else
-    X = designMatrix;
-end%if
-
-% save out
-designFile = fullfile(resultsDir, 'univariate_edge_test_design.mat');
-ROInets.save_vest(X, designFile);
-Cd = onCleanup(@() delete(designFile));
-
-%% Construct contrasts
-contrastFile = fullfile(resultsDir, 'univariate_edge_test_design.con');
-ROInets.save_vest(contrasts, contrastFile);
-Cc = onCleanup(@() delete(contrastFile));
-
-%% Run randomise
-outputNifti = fullfile(resultsDir, 'univariate_edge_test');
-
-% call to randomise
-command = sprintf('randomise -i %s -o %s -d %s -t %s -x', ...
-                  inputNifti, outputNifti, designFile, contrastFile);
-              
-% submit to terminal
-ROInets.call_fsl_wrapper(command);
-
-Co = onCleanup(@() delete([outputNifti '*.nii.gz']));
-
-%% Retrieve results
-for iCon = nContrasts:-1:1,
-   TstatFile{iCon}     = [outputNifti '_tstat' num2str(iCon) '.nii.gz'];
-   pFile{iCon}         = [outputNifti '_vox_p_tstat' num2str(iCon) '.nii.gz'];
-   corrpFile{iCon}     = [outputNifti '_vox_corrp_tstat' num2str(iCon) '.nii.gz'];
-   
-   Ttmp(:,iCon)     = read_avw (TstatFile{iCon});
-   ptmp(:,iCon)     = read_avw (pFile{iCon});
-   corrptmp(:,iCon) = read_avw (corrpFile{iCon});
-end%for
+[Ttmp, ptmp, corrptmp] = ROInets.perform_glm_with_randomise(edges,        ...
+															designMatrix, ...
+															contrasts,    ...
+															standardise);
 
 % convert back to symmetric matrices
-T = ROInets.unvectorize(Ttmp);
-p = ROInets.unvectorize(1 - ptmp);
+T     = ROInets.unvectorize(Ttmp);
+p     = ROInets.unvectorize(1 - ptmp);
 corrp = ROInets.unvectorize(1 - corrptmp);
 
 end%univariate_edge_tests

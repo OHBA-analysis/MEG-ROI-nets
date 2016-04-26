@@ -1,10 +1,10 @@
-function [O, Q, R] = householder_orthogonalise(A)
+function [O, Q, R, W] = householder_orthogonalise(A)
 %HOUSEHOLDER_ORTHOGONALISE	orthogonalisation using householder method
 % O = HOUSEHOLDER_ORTHOGONALISE(A) Computes orthogonal set of vectors O 
 %    from input A. Vectors must form columns of A. 
 %
-% [O, Q, R] = HOUSEHOLDER_ORTHOGONALISE(A) Computes orthonormal vectors
-%    in Q and R such that A = Q*R. 
+% [O, Q, R, W] = HOUSEHOLDER_ORTHOGONALISE(A) Computes orthonormal vectors
+%    in Q, and R such that A = Q*R, and W such that O = A * W;
 %
 % See also: ROInets.symmetric_orthogonalise
 
@@ -31,8 +31,8 @@ function [O, Q, R] = householder_orthogonalise(A)
 
 [Q, R] = qr(A,0);
 
-if issparse(Q), 
-    O = Q * (diag(diag(R)));
-else
-    O = ROInets.scale_cols(Q, diag(R));
+O = Q * (diag(diag(R)));
+
+if nargout > 3,
+	W = inv(R) * diag(diag(R)); %#ok<MINV> inverse acceptable for upper triangular matrix
 end%if

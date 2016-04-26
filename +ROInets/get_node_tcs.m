@@ -1,6 +1,7 @@
 function [nodeData, voxelWeightings] = get_node_tcs(voxelData,    ...
                                                     spatialBasis, ...
-                                                    timeCourseGenMethod)
+                                                    timeCourseGenMethod, ...
+													ROIlabels)
 %GET_NODE_TCS extracts ROI time-courses
 %
 % methods for extracting node time courses 
@@ -101,6 +102,17 @@ end%if
 
 nParcels = ROInets.cols(spatialBasis);
 
+% sort out names for ROIs
+if nargin < 4 || isempty(ROIlabels),
+	for iParcel = nParcels:-1:1,
+		ROIlabels{iParcel,1} = sprintf('ROI%d', iParcel);
+	end%if
+else
+	assert(iscell(ROIlabels) && length(ROIlabels) == nParcels, ...
+		[mfilename ':BadROIlabels'],                         ...
+		'ROIlabels should be a cell array matching the number of ROIs in the parcellation. \n');
+end%if
+
 ft_progress('init', 'text', '');
 
 switch lower(timeCourseGenMethod)
@@ -173,13 +185,13 @@ switch lower(timeCourseGenMethod)
                          'with the analysis. \n'],                         ...
                          mfilename, iParcel);
                      
-                nodeTS = zeros(1, ROInets.cols(voxelDataScaled));
+                nodeTS = zeros(1, ROInets.cols(voxelData));
             end%if
             
             nodeData(iParcel,:) = nodeTS;
         end%for
         
-        clear parcelData voxelDataScaled
+        clear parcelData 
 
     case 'peakvoxel'
         if any(spatialBasis(:)~=0 & spatialBasis(:)~=1),
@@ -236,7 +248,7 @@ switch lower(timeCourseGenMethod)
             end%if
         end%loop over parcels
         
-        clear voxelData parcelData
+        clear parcelData
         
     case 'spatialbasis'
         % scale group maps so all have a positive peak of height 1
@@ -279,7 +291,7 @@ switch lower(timeCourseGenMethod)
             % Weight all voxels by the spatial map in question
             % AB - apply the mask first then weight, to reduce memory use
             weightedTS  = voxelData(find(parcelMask),:); %#ok Can't use logical indexing
-            weightedTS = weightedTS(:,goodSamples);
+            weightedTS  = weightedTS(:,goodSamples);
             weightedTS  = ROInets.scale_rows(weightedTS, thisMap(parcelMask));
 
             % perform svd and take scores of 1st PC as the node time-series
@@ -328,8 +340,6 @@ switch lower(timeCourseGenMethod)
             nodeData(iParcel, :) = nodeTS;
             
         end%loop over parcels
-        
-        clear voxelData 
         
         
     otherwise
