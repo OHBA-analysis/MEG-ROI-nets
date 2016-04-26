@@ -339,5 +339,26 @@ switch lower(timeCourseGenMethod)
 end%switch
 
 ft_progress('close');
+
+% convert output into an online montage
+if isa(voxelData, 'meeg'),
+
+	% set up new montage by premultiplication
+	nMontages           = voxelData.montage('getnumber');
+	currentMontage      = voxelData.montage('getmontage');
+	newMontage          = currentMontage;
+	newMontage.tra      = voxelWeightings.' * currentMontage.tra;
+	newMontage.labelnew = ROIlabels;
+	newMontage.name     = ['Parcellated ' currentMontage.name];
+	newMontage          = rmfield(newMontage, 'channels');
+	unit                = unique(units(nodeData));
+	
+	% convert to spm object
+	nodeData = voxelData;
+	nodeData = nodeData.montage('add', newMontage);
+	nodeData = nodeData.montage('switch', nMontages + 1);
+	nodeData = nodeData.units(:,unit{1});
+	nodeData.save();
+end%if
 end%get_node_tcs
 % [EOF]
