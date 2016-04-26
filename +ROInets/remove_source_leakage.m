@@ -148,18 +148,21 @@ end
 
 end%find_orthogonal_matrix_by_householder_reflections
 
+
 function D = add_montage(D, W, protocol)
 %ADD_MONTAGE adds the mapping W' to object D.
 % set up new montage by premultiplication
 nMontages       = D.montage('getnumber');
 currentMontage  = D.montage('getmontage');
 newMontage      = currentMontage;
+unit            = unique(D.units());
 newMontage.tra  = W.' * currentMontage.tra;
 newMontage.name = [protocol ' orthogonalised ' currentMontage.name];
 
 % convert to spm object
 D = D.montage('add', newMontage);
 D = D.montage('switch', nMontages + 1);
+D = D.units(:,unit{1});
 D.save();
 end%add_montage
 % [EOF]
