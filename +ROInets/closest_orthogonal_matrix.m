@@ -58,7 +58,6 @@ while iter < MAX_ITER,
     % find orthonormal polar factor
 	try
 		V = ROInets.symmetric_orthogonalise(A * diag(d));
-
     catch ME
 		% use suppression of some variables such that rank is reduced as a
 		% stopping criterion
@@ -66,6 +65,8 @@ while iter < MAX_ITER,
 			% stop the process and use that last L computed. 
 			rank_reduction_warning();
 			break
+        else
+            throw(ME); % Re-throw the original error
 		end%if
 	end%try
 
