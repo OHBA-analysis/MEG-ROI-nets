@@ -202,8 +202,8 @@ switch lower(timeCourseGenMethod)
         spatialBasis = logical(spatialBasis);
         
         % find rms power in each voxel
-        if isa(D,'meeg')
-            voxelPower = osl_source_variance(D); % I'm going to use variance instead, because it's fast to compute
+        if isa(voxelData,'meeg')
+            voxelPower = osl_source_variance(voxelData); % I'm going to use variance instead, because it's fast to compute
         else
             voxelPower = sqrt(ROInets.row_sum(voxelData.^2) ./ ...
                               ROInets.cols(voxelData));
