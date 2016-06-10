@@ -46,19 +46,27 @@ function x = randgamma(shape, scale)
 %	$LastChangedDate$
 %	Contact: giles.colclough@eng.ox.ac.uk
 %	Originally written on: GLNXA64 by Giles Colclough, 19-Feb-2014 16:42:31
+mlock
+persistent USE_LIGHTSPEED
+
+if ~exist('USE_LIGHTSPEED', 'var'),
+	% check for lightspeed mex file
+	USE_LIGHTSPEED = (3 == exist('randgamma', 'file')); % this check is slow if in a loop
+end%if
 
 assert(isequal(size(shape), size(scale)), ...
        [mfilename ':InconsistentInputDimensions'], ...
        'Input dimensions must be the same size. \n');
    
 % Check for lightspeed mex file
-if 3 == exist('randgamma', 'file'),
+if USE_LIGHTSPEED, 
     % This code replaces gamrnd(shape, scale) or scale.*randg(shape)
     % using Lightspeed Mex file from a compiled lightspeed toolbox (See Tom
     % Minka's website).
     x = scale .* randgamma(shape);
 
 else
+	% native matlab
     x = scale .* randg(shape);
 end%if
 
