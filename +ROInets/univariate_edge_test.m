@@ -1,4 +1,4 @@
-function [T, p, corrp] = univariate_edge_test(netmats, designMatrix, contrasts, standardise)
+function [T, p, corrp, COPE] = univariate_edge_test(netmats, designMatrix, contrasts, standardise)
 %UNIVARIATE_EDGE_TEST permutation test for group-level stats on networks
 %
 % [T, P, CORRP] = UNIVARIATE_EDGE_TEST(NETMATS, DESIGN, CONTRAST) performs
@@ -68,15 +68,16 @@ end%if
    
 edges = ROInets.get_edges(netmats); % note this assumes symmetry
 
-[Ttmp, ptmp, corrptmp] = ROInets.perform_glm_with_randomise(edges,        ...
-															designMatrix, ...
-															contrasts,    ...
-															standardise);
+[Ttmp, ptmp, corrptmp, COPEtmp] = ROInets.perform_glm_with_randomise(edges,        ...
+														             designMatrix, ...
+                                                                     contrasts,    ...
+                                                                     standardise);
 
 % convert back to symmetric matrices
 T     = ROInets.unvectorize(Ttmp);
 p     = ROInets.unvectorize(1 - ptmp);
 corrp = ROInets.unvectorize(1 - corrptmp);
+COPE  = ROInets.unvectorize(COPEtmp);
 
 end%univariate_edge_tests
 % [EOF]

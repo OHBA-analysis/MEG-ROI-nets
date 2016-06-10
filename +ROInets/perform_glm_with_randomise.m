@@ -1,4 +1,4 @@
-function [Ttmp, ptmp, corrptmp] = perform_glm_with_randomise(edges, designMatrix, contrasts, standardise)
+function [Ttmp, ptmp, corrptmp, COPE] = perform_glm_with_randomise(edges, designMatrix, contrasts, standardise)
 %PERFORM_GLM_WITH_RANDOMISE 
 %
 % [T, P, CORRP] = PERFORM_GLM_WITH_RANDOMISE(DATA, X, CONTRASTS, STANDARDISE)
@@ -82,6 +82,16 @@ command = sprintf('randomise -i %s -o %s -d %s -t %s -x --norcmask', ...
 ROInets.call_fsl_wrapper(command);
 
 Co = onCleanup(@() delete([outputNifti '*.nii.gz']));
+
+%% Produce nice COPEs for each edge 
+% a cope is the difference in mean Z-converted correlations between each
+% group
+pinvxtx = pinv(designMatrix' * designMatrix);
+pinvx   = pinvxtx * designMatrix';
+
+for iEdge = ROInets.rows(edges):-1:1,
+    COPE(iEdge,:) = contrasts * pinvx * edges(iEdge, :).';
+end%for
 
 %% Retrieve results
 for iCon = nContrasts:-1:1,
