@@ -110,6 +110,9 @@ EnvParamsDefault = struct('windowLength', 2, ...
                           'useFilter',    false);
 Inputs.addParamValue('EnvelopeParams', EnvParamsDefault, @isstruct);
 
+FirstLevelDefault = [];
+Inputs.addParamValue('FirstLevel', FirstLevelDefault, @(s) isempty(s) || isstruct(s));
+
 SubjectLevelDefault = [];
 Inputs.addParamValue('SubjectLevel', SubjectLevelDefault, @(s) isempty(s) || isstruct(s));
 
@@ -222,15 +225,19 @@ Settings.Regularize = check_regularization(Inputs.Results.Regularize, ...
                                            Inputs.Results.leakageCorrectionMethod);
 
 % check first level options
-if ~isempty(Settings.SubjectLevel),
-    check_first_level(Settings.SubjectLevel);
+if ~isempty(Settings.FirstLevel),
+    check_first_level(Settings.FirstLevel);
+	nSubjects             = check_subject_level(Settings.SubjectLevel, Settings.nSessions);
+	Settings.nSubjects    = nSubjects;
     Settings.paradigm     = 'task';
 else
+	nSubjects             = Settings.nSessions;
     Settings.paradigm     = 'rest';
 end%if
 
-% and grouip level options
-check_group_level(Settings.GroupLevel, Settings.nSessions);
+
+% and group level options
+check_group_level(Settings.GroupLevel, nSubjects);
 
 %% Output
 out = Settings;
@@ -312,6 +319,25 @@ assert(isfield(FirstLevel, 'contrasts') && iscell(FirstLevel.contrasts), ...
        'SubjectLevel.contrasts not specified properly. \n');
    
 end%check_first_level
+
+function nSubjects = check_subject_level(SubjectLevel, nSessions)
+%CHECK_SUBJECT_LEVEL
+
+% are we running task analysis?
+if isempty(SubjectLevel),
+    return
+end%if
+
+assert(isfield(SubjectLevel, 'subjectDesign') && ismatrix(SubjectLevel.subjectDesign), ...
+       [mfilename ':noSubjectDesign'],       ...
+       'SubjectLevel.subjectDesign not specified properly. \n');
+   
+[checkMe, nSubjects] = size(SubjectLevel.subjectDesign);
+assert(checkMe == nSessions, ...
+       [mfilename ':BadSubjectDesign'], ...
+       'Subject level design matrix must have as many rows as sessions. \n');
+   
+end%check_subject_level
 
 function check_group_level(GroupLevel, nSessions)
 %CHECK_GROUP_LEVEL

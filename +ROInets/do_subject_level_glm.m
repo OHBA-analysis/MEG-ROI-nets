@@ -1,8 +1,8 @@
-function correlationMats = do_subject_level_glm(correlationMats, Settings, subjectDesign)
+function correlationMats = do_subject_level_glm(correlationMats, Settings)
 %DO_SUBJECT_LEVEL_GLM run subject level analysis
 %
-% M = ROInets.DO_SUBJECT_LEVEL_GLM(M, Settings, X) uses subject design
-%   matrix X to perform a subject-level analysis, and append these results
+% M = ROInets.DO_SUBJECT_LEVEL_GLM(M, Settings) uses subject design
+%   matrix Settings.SubjectLevel.subjectDesign to perform a subject-level analysis, and append these results
 %   as a subject level to the set of correlation matrices M. 
 %
 %   The subject design matrix should be an nSessions by nSubjects matrix
@@ -33,19 +33,26 @@ function correlationMats = do_subject_level_glm(correlationMats, Settings, subje
 %	Originally written on: MACI64 by Giles Colclough, 10-Apr-2014 13:33:21
 
 if ~strcmpi(Settings.paradigm, 'task'),
-	error([mfilename ':NotTaskAnalysis'], ...
-		  'This function is only valid for task data at the moment. \n');
+	% no need to do anything: only 1 session assumed for RS analysis
+	return
 end%if
     
 % quick dimension check
 nSessions = size(correlationMats{1}.firstLevel(1).cope.correlation,3);
+
+if ~isfield(Settings, 'SubjectLevel') || isempty(Settings.SubjectLevel) || isempty(Settings.SubjectLevel.subjectDesign),
+	subjectDesign = eye(nSessions);
+else
+	subjectDesign = Settings.SubjectLevel.subjectDesign;
+end%if
+
 assert(ROInets.rows(subjectDesign) == nSessions, ...
 	   [mfilename ':dimensionMismatch'], ...
 	   'subjectDesign should have as many rows as there are sessions to analyse. \n');
     
 for iFreq = Settings.nFreqBands:-1:1,    
     % we need to run a separate GLM for each first level contrast. 
-    for iContrast = length(Settings.SubjectLevel.contrasts):-1:1, % clearly, the naming of the first level needs to change as this is pretty confusing ATM
+    for iContrast = length(Settings.FirstLevel.contrasts):-1:1, 
 		
 		% we use parameter estimates from the level below for each of
 		% correlation, partial correlation and regularised partial

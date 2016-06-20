@@ -176,7 +176,7 @@ function correlationMats = osl_network_analysis(Dlist, Settings)
 %
 %  That's all you need for a resting-state analyis. 
 %  If you want to run a task analysis on epoched data, you'll also need
-%       SubjectLevel             - holds parameters for first-level analysis
+%       FirstLevel             - holds parameters for first-level analysis
 %                                  .designSummary: cell array with one
 %                                                  element for each
 %                                                  regressor, holding a
@@ -370,6 +370,9 @@ correlationMats = ROInets.reformat_results(mats, Settings);
 saveFileName = fullfile(outputDirectory, 'ROInetworks_correlation_mats.mat');
 save(saveFileName, 'correlationMats');
 clear mats
+
+%% Subject-level analysis to average over sessions in a fixed-effects manner
+correlationMats = ROInets.do_subject_level_glm(correlationMats, Settings);
 
 %% Group-level analysis
 % Find whole group means

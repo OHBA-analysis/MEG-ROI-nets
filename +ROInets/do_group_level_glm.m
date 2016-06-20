@@ -28,9 +28,9 @@ for iFreq = Settings.nFreqBands:-1:1,
 if strcmpi(Settings.paradigm, 'rest'),
     % univariate edge testing in turn for correlation, partial correlation
     % and regularized partials.
-    [T, p, corrp] = ROInets.univariate_edge_test(correlationMats{iFreq}.envCorrelation_z, ...
-                                                 Settings.GroupLevel.designMatrix,        ...
-                                                 Settings.GroupLevel.contrasts);
+    [T, p, corrp, COPE] = ROInets.univariate_edge_test(correlationMats{iFreq}.envCorrelation, ...
+                                                       Settings.GroupLevel.designMatrix,        ...
+                                                       Settings.GroupLevel.contrasts);
     for iContrast = size(p,3):-1:1,
         h(:,:,iContrast) = ROInets.false_discovery_rate(ROInets.p_to_z_two_tailed(p(:,:,iContrast)), ...
                                                         Settings.FDRalpha);
@@ -40,8 +40,9 @@ if strcmpi(Settings.paradigm, 'rest'),
     groupLevel.correlation.p    = p;
     groupLevel.correlation.FWEp = corrp;
     groupLevel.correlation.FDRh = h;
+    groupLevel.correlation.COPE = COPE;
     
-    [T, p, corrp] = ROInets.univariate_edge_test(correlationMats{iFreq}.envPartialCorrelation_z, ...
+    [T, p, corrp, COPE] = ROInets.univariate_edge_test(correlationMats{iFreq}.envPartialCorrelation_z, ...
                                                  Settings.GroupLevel.designMatrix,        ...
                                                  Settings.GroupLevel.contrasts);
     for iContrast = size(p,3):-1:1,
@@ -53,8 +54,9 @@ if strcmpi(Settings.paradigm, 'rest'),
     groupLevel.partialCorrelation.p    = p;
     groupLevel.partialCorrelation.FWEp = corrp;
     groupLevel.partialCorrelation.FDRh = h;
+    groupLevel.partialCorrelation.COPE = COPE;
     
-    [T, p, corrp] = ROInets.univariate_edge_test(correlationMats{iFreq}.envPartialCorrelationRegularized_z, ...
+    [T, p, corrp, COPE] = ROInets.univariate_edge_test(correlationMats{iFreq}.envPartialCorrelationRegularized_z, ...
                                                  Settings.GroupLevel.designMatrix,        ...
                                                  Settings.GroupLevel.contrasts);
     for iContrast = size(p,3):-1:1,
@@ -66,6 +68,7 @@ if strcmpi(Settings.paradigm, 'rest'),
     groupLevel.partialCorrelationRegularized.p    = p;
     groupLevel.partialCorrelationRegularized.FWEp = corrp;
     groupLevel.partialCorrelationRegularized.FDRh = h;
+    groupLevel.partialCorrelationRegularized.COPE = COPE;
     
     % add in design for reference
     groupLevel.designMatrix = Settings.GroupLevel.designMatrix;
@@ -76,7 +79,7 @@ elseif strcmpi(Settings.paradigm, 'task'),
     % we need to run a separate GLM for each first level contrast. 
     % And for each group-level contrast.
     % What a mare.
-    for iContrast = length(Settings.SubjectLevel.contrasts):-1:1,
+    for iContrast = length(Settings.FirstLevel.contrasts):-1:1,
 		% we use parameter estimates from the level below for each of
 		% correlation, partial correlation and regularised partial
 		% correlation
@@ -91,39 +94,40 @@ elseif strcmpi(Settings.paradigm, 'task'),
 		
 		
 		%-- correlation
-		
-        [T, p, corrp] = ROInets.univariate_edge_test(COPE.correlation,                 ...
-                                                     Settings.GroupLevel.designMatrix, ...
-													 Settings.GroupLevel.contrasts);
+        [T, p, corrp, COPE] = ROInets.univariate_edge_test(COPE.correlation,                 ...
+                                                           Settings.GroupLevel.designMatrix, ...
+													       Settings.GroupLevel.contrasts);
         for iConG = size(p,3):-1:1,
             h(:,:,iConG) = ROInets.false_discovery_rate(ROInets.p_to_z_two_tailed(p(:,:,iConG)), ...
-                                                            Settings.FDRalpha);
+                                                        Settings.FDRalpha);
         end%for
 
         groupLevel(iContrast).correlation.T    = T;
         groupLevel(iContrast).correlation.p    = p;
         groupLevel(iContrast).correlation.FWEp = corrp;
         groupLevel(iContrast).correlation.FDRh = h;
+        groupLevel(iContrast).correlation.COPE = COPE;
 
 		%-- partial correlation
-        [T, p, corrp] = ROInets.univariate_edge_test(COPE.partialCorrelation,          ...
-                                                     Settings.GroupLevel.designMatrix, ...
-                                                     Settings.GroupLevel.contrasts);
+        [T, p, corrp, COPE] = ROInets.univariate_edge_test(COPE.partialCorrelation,          ...
+                                                           Settings.GroupLevel.designMatrix, ...
+                                                           Settings.GroupLevel.contrasts);
         for iConG = size(p,3):-1:1,
             h(:,:,iConG) = ROInets.false_discovery_rate(ROInets.p_to_z_two_tailed(p(:,:,iConG)), ...
-                                                            Settings.FDRalpha);
+                                                        Settings.FDRalpha);
         end%for
 
         groupLevel(iContrast).partialCorrelation.T    = T;
         groupLevel(iContrast).partialCorrelation.p    = p;
         groupLevel(iContrast).partialCorrelation.FWEp = corrp;
         groupLevel(iContrast).partialCorrelation.FDRh = h;
+        groupLevel(iContrast).partialCorrelation.COPE = COPE;
 
 		%-- regularised partial correlation
         if Settings.Regularize.do,
-            [T, p, corrp] = ROInets.univariate_edge_test(COPE.partialCorrelationRegularized, ...
-                                                         Settings.GroupLevel.designMatrix,   ...
-                                                         Settings.GroupLevel.contrasts);
+            [T, p, corrp, COPE] = ROInets.univariate_edge_test(COPE.partialCorrelationRegularized, ...
+                                                               Settings.GroupLevel.designMatrix,   ...
+                                                               Settings.GroupLevel.contrasts);
             for iConG = size(p,3):-1:1,
                 h(:,:,iConG) = ROInets.false_discovery_rate(ROInets.p_to_z_two_tailed(p(:,:,iConG)), ...
                                                             Settings.FDRalpha);
@@ -133,6 +137,7 @@ elseif strcmpi(Settings.paradigm, 'task'),
             groupLevel(iContrast).partialCorrelationRegularized.p    = p;
             groupLevel(iContrast).partialCorrelationRegularized.FWEp = corrp;
             groupLevel(iContrast).partialCorrelationRegularized.FDRh = h;
+            groupLevel(iContrast).partialCorrelationRegularized.COPE = COPE;
         end%if
         % add in first levels for reference
         groupLevel(iContrast).firstLevelContrast        = Settings.SubjectLevel.contrasts{iContrast};
