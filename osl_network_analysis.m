@@ -187,6 +187,12 @@ function correlationMats = osl_network_analysis(Dlist, Settings)
 %                                  .contrasts: cell array of vectors, each
 %                                              of length nRegressors
 %
+%       SubjectLevel           - holds parameters to deal with multiple
+%                                sessions
+%									.subjectDesign: nSessions x nSubjects
+%									                matrix
+%
+%
 %   In either case, if you want to run a group-level GLM analysis on each
 %   network edge, correcting for family-wise error, you'll also need
 %        GroupLevel              - holds parameter for group-level GLM
@@ -194,7 +200,7 @@ function correlationMats = osl_network_analysis(Dlist, Settings)
 %                                                 matrix
 %                                  .contrasts:    nContrasts x nRegressors
 %                                                 matrix
-%   There is a (slightly) different syntax at subject and group level. 
+%   There is a (slightly) different syntax at first, subject and group level. 
 %
 %
 %   The ROI time-courses, corrected for source spread, and their envelopes, 
