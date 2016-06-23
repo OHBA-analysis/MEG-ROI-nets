@@ -105,8 +105,9 @@ Inputs.addParamValue('nEmpiricalSamples', empiricalSamplesDefault, numericValidF
 ARmodelOrderDefault = 0;
 Inputs.addParamValue('ARmodelOrder', ARmodelOrderDefault, numericValidFcn);
 
-EnvParamsDefault = struct('windowLength', 2, ...
-                          'overlap',      0.6,       ...
+EnvParamsDefault = struct('windowLength', 2,    ...
+                          'overlap',      0.6,  ...
+						  'takeLogs',     true, ...
                           'useFilter',    false);
 Inputs.addParamValue('EnvelopeParams', EnvParamsDefault, @isstruct);
 
@@ -200,6 +201,13 @@ if isfield(EnvelopeParams, 'useFilter'),
                'EnvelopeParams.useFilter must be a logical value. \n');
 else
     EnvelopeParams.useFilter = EnvParamsDefault.useFilter;
+end%if
+if isfield(EnvelopeParams, 'takeLogs'),
+        assert(islogical(EnvelopeParams.takeLogs),        ...
+               [mfilename ':IncorrectEnvField:takeLogs'], ...
+               'EnvelopeParams.takeLogs must be a logical value. \n');
+else
+    EnvelopeParams.takeLogs = EnvParamsDefault.takeLogs;
 end%if
 EnvelopeParams.useHanningWindow = false; % not an option at the moment due to a bug in osl
 
