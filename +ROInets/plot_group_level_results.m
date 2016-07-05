@@ -82,7 +82,7 @@ else
 end%if
 
 
-	FONTSIZE = 15;
+	FONTSIZE = 12; % MP edit from 15
 	
 
 if isTask,
@@ -178,6 +178,7 @@ else % not task
 			figure('Name', plotTitle, 'Color', 'w');
 			imagesc(plotMat(ROIorder,ROIorder));
 			set(gca, 'YTick', 1:nROIs, 'YTickLabel', ROInames);
+            set(gca, 'XTick', 1:nROIs, 'XTickLabel', ROInames);
 			set(gca,...
 				'FontName', 'Helvetica', ...
 				'FontSize', FONTSIZE, ...

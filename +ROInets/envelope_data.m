@@ -156,7 +156,6 @@ function [envelopedDataDS, t_ds, newFs] = filter_and_downsample(t, newMaxFreq)
 % effects
 
 Fs            = 1.0 / median(diff(t));
-nVoxels       = ROInets.rows(HE);
 nyquistFactor = 2.0 / 0.8;
 newFs         = nyquistFactor * newMaxFreq;
 DsFactor      = floor(Fs / newFs);
@@ -165,20 +164,25 @@ factorList    = get_factors(DsFactor);
 filterType    = 'iir';%'fir'; % use fir filter for long time-series, and for higher downsample factors. Be aware that no phase shift correction is applied
 
 % downsample in factors lower than 13.
-for iFactor = 1:length(factorList),
-    for iVoxel = nVoxels:-1:1, % loop backwards to initialise correctly
-        envelopedDataDS(iVoxel,:) = decimate(HE(iVoxel,:), ...
-                                             factorList(iFactor),     ...
-                                             filterType);
-    end%loop over parcels
-    t_ds = decimate(t(1:end), factorList(iFactor), filterType);
-    
-    if iFactor < length(factorList), % if we're not in last iteration of loop
-        HE = envelopedDataDS;
-        t  = t_ds;
-        clear envelopedDataDS t_ds
-    end%if
-end%if
+memblks = osl_memblocks(size(HE), 1, 2000*2^20); % 2gb chunks
+for iBlk = 1:ROInets.rows(memblks),
+	voxelSet = memblks(iBlk,1):memblks(iBlk,2);
+	nVox     = length(voxelSet);
+	for iFactor = 1:length(factorList),
+		for iVoxel = nVox:-1:1, % loop backwards to initialise correctly
+			envelopedDataDS(iVoxel,:) = decimate(HE(voxelSet(iVoxel),:), ...
+												 factorList(iFactor),    ...
+												 filterType);
+		end%loop over parcels
+		t_ds = decimate(t(1:end), factorList(iFactor), filterType);
+
+		if iFactor < length(factorList), % if we're not in last iteration of loop
+			HE(voxelSet,:) = envelopedDataDS;
+			t              = t_ds;
+			clear envelopedDataDS
+		end%if
+	end%for
+end%for
 end%filter_and_downsample
 
 

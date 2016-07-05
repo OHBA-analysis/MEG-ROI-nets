@@ -14,6 +14,9 @@ function [T, p, corrp, COPE] = univariate_edge_test(netmats, designMatrix, contr
 % [T, P, CORRP] = UNIVARIATE_EDGE_TEST(..., STANDARDISE) demeans and
 %    variance normalises the design matrix, if TRUE. 
 %
+% [T, P, CORRP, COPE] = ... also returns the contrast of parameter
+%   estimates from the regression. 
+%
 %   T provides single-edge T-stats; P the uncorrected p-Values; and CORRP the
 %   FWE-corrected p-values. To use the weaker FDR correction, see
 %   ROINETS.FALSE_DISCOVERY_RATE. 

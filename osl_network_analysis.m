@@ -176,7 +176,7 @@ function correlationMats = osl_network_analysis(Dlist, Settings)
 %
 %  That's all you need for a resting-state analyis. 
 %  If you want to run a task analysis on epoched data, you'll also need
-%       SubjectLevel             - holds parameters for first-level analysis
+%       FirstLevel             - holds parameters for first-level analysis
 %                                  .designSummary: cell array with one
 %                                                  element for each
 %                                                  regressor, holding a
@@ -187,6 +187,12 @@ function correlationMats = osl_network_analysis(Dlist, Settings)
 %                                  .contrasts: cell array of vectors, each
 %                                              of length nRegressors
 %
+%       SubjectLevel           - holds parameters to deal with multiple
+%                                sessions
+%									.subjectDesign: nSessions x nSubjects
+%									                matrix
+%
+%
 %   In either case, if you want to run a group-level GLM analysis on each
 %   network edge, correcting for family-wise error, you'll also need
 %        GroupLevel              - holds parameter for group-level GLM
@@ -194,7 +200,7 @@ function correlationMats = osl_network_analysis(Dlist, Settings)
 %                                                 matrix
 %                                  .contrasts:    nContrasts x nRegressors
 %                                                 matrix
-%   There is a (slightly) different syntax at subject and group level. 
+%   There is a (slightly) different syntax at first, subject and group level. 
 %
 %
 %   The ROI time-courses, corrected for source spread, and their envelopes, 
@@ -370,6 +376,9 @@ correlationMats = ROInets.reformat_results(mats, Settings);
 saveFileName = fullfile(outputDirectory, 'ROInetworks_correlation_mats.mat');
 save(saveFileName, 'correlationMats');
 clear mats
+
+%% Subject-level analysis to average over sessions in a fixed-effects manner
+correlationMats = ROInets.do_subject_level_glm(correlationMats, Settings);
 
 %% Group-level analysis
 % Find whole group means

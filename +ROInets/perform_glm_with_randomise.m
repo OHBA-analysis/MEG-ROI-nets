@@ -5,6 +5,9 @@ function [Ttmp, ptmp, corrptmp, COPE] = perform_glm_with_randomise(edges, design
 %   runs a GLM of DATA = X Beta + noise. Returns T-statistics, uncorrected
 %   and permutation-corrected p-values associated with the regression. 
 %
+% [T, P, CORRP, COPE] = ... also returns the contrast of parameter
+%   estimates from the regression. 
+%
 % Randomise actually returns 1-p values in p and corrp.
 %
 % Note: randomise automatically demeans, so this is not helpful for finding
