@@ -21,8 +21,6 @@ function [nodeData, voxelWeightings] = get_node_tcs(voxelData,    ...
 %     note that the mean timecourse suffers issues relating to sign
 %     ambiguities, and so is not currently an option.
 %
-% NODEDATA = GET_NODE_TCS(D, ...) reads in data from an SPM MEEG object D. 
-%
 % NODEDATA = GET_NODE_TCS(VOXELDATA, SPATIALBASIS, METHOD)
 %   it is also possible to use a spatial basis set (e.g. from group ICA) to
 %   infer parcel time-courses. Each spatial map (held in columns) is a
@@ -37,6 +35,11 @@ function [nodeData, voxelWeightings] = get_node_tcs(voxelData,    ...
 %   Options for METHOD are 
 %      'spatialBasis' - The ROI time-course for each spatial map is the 1st 
 %                       PC from all voxels, weighted by the spatial map. 
+%
+% NODEDATA = GET_NODE_TCS(D, PARCELFLAG, METHOD, ROINAMES) reads in data 
+%   from an SPM MEEG object D, saving the results NODEDATA as a new SPM
+%   object with online montage. ROINAMES holds the channel names of the new
+%   montage. 
 %
 % [NODEDATA, VOXEL_WEIGHTINGS] = GET_NODE_TCS(...)
 %    will return the relative weighting of voxels over the brain, used to
