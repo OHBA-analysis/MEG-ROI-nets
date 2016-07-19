@@ -30,13 +30,12 @@ function [L, d, rho, W] = closest_orthogonal_matrix(A)
 %	You should have received a copy of the GNU General Public License
 %	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 %	$LastChangedBy$
 %	$Revision$
 %	$LastChangedDate$
 %	Contact: giles.colclough@eng.ox.ac.uk
 %	Originally written on: MACI64 by Giles Colclough, 07-Aug-2014 13:27:52
-%   Optimised by JH on Jul 19th 2016
+%	Optimised by JH on Jul 19th 2016
 
 % settings
 MAX_ITER  = 2e2;
@@ -58,20 +57,20 @@ while iter < MAX_ITER,
     iter = iter + 1;
     
     % find orthonormal polar factor
-	try
-		V = ROInets.symmetric_orthogonalise(ROInets.scale_cols( A, d ));
+    try
+        V = ROInets.symmetric_orthogonalise(ROInets.scale_cols( A, d ));
     catch ME
-		% use suppression of some variables such that rank is reduced as a
-		% stopping criterion
-		if iter > 1 && regexp(ME.identifier, 'RankError'),
-			% stop the process and use that last L computed. 
-			rank_reduction_warning();
-			break
+        % use suppression of some variables such that rank is reduced as a
+        % stopping criterion
+        if iter > 1 && regexp(ME.identifier, 'RankError'),
+            % stop the process and use that last L computed.
+            rank_reduction_warning();
+            break
         else
             throw(ME); % Re-throw the original error
-		end%if
-	end%try
-
+        end%if
+    end%try
+    
     % minimise rho = |A - V D|^2 w.r.t d
     d = dot( A_b, V, 1 );
     
@@ -92,9 +91,9 @@ while iter < MAX_ITER,
 end%convergence loop
 
 if nargout > 3,
-	% output linear operator - run once more
-	[~, ~, ~, W] = ROInets.symmetric_orthogonalise(ROInets.scale_cols( A, d ));
-	W = diag(d) * W * diag(d);
+    % output linear operator - run once more
+    [~, ~, ~, W] = ROInets.symmetric_orthogonalise(ROInets.scale_cols( A, d ));
+    W = diag(d) * W * diag(d);
 end%if
 
 % tidy vector
@@ -102,9 +101,9 @@ rho(isnan(rho)) = [];
 
 if isequal(iter, MAX_ITER),
     warning([mfilename ':MaxIterationsHit'],                              ...
-            ['%s: hit max iterations: %d. ',                              ...
-             'You may not have found the optimal orthogonal matrix. \n'], ...
-             mfilename, MAX_ITER);
+        ['%s: hit max iterations: %d. ',                              ...
+        'You may not have found the optimal orthogonal matrix. \n'], ...
+        mfilename, MAX_ITER);
 end%if
 
 if DEBUG,
