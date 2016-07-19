@@ -91,8 +91,6 @@ while iter < MAX_ITER,
     end%if
 end%convergence loop
 
-iter
-
 if nargout > 3,
 	% output linear operator - run once more
 	[~, ~, ~, W] = ROInets.symmetric_orthogonalise(ROInets.scale_cols( A, d ));
