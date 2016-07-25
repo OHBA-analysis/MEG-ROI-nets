@@ -30,55 +30,56 @@ function [L, d, rho, W] = closest_orthogonal_matrix(A)
 %	You should have received a copy of the GNU General Public License
 %	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 %	$LastChangedBy$
 %	$Revision$
 %	$LastChangedDate$
 %	Contact: giles.colclough@eng.ox.ac.uk
 %	Originally written on: MACI64 by Giles Colclough, 07-Aug-2014 13:27:52
+%	Optimised by JH on Jul 19th 2016
 
 % settings
 MAX_ITER  = 2e2;
 TOLERANCE = max(1, max(size(A)) * ROInets.fast_svds(A,1)) * eps(class(A)); % the tolerance used for matrices within matlab
 DEBUG     = false;
-dInitial  = ones(ROInets.cols(A), 1); % use closest orthonormal matrix to initialise. Alternative: dInitial = sqrt(diag(A' * A)); 
 
 % tests for convergence
-convergence = @(rho, prevRho) abs(rho - prevRho) <= TOLERANCE;
+reldiff     = @(a,b) 2*abs(a-b) / (abs(a)+abs(b));
+absdiff     = @(a,b) abs(a-b); % previously used - JH
+convergence = @(rho, prevRho) reldiff(rho,prevRho) <= TOLERANCE;
 
 % declare memory and initialise
 iter = 0;
-d    = dInitial;
+A_b  = conj(A);
+d    = sqrt(dot( A, A_b, 1 )); % alternative: ones( 1, ROInets.cols(A) )
 rho  = NaN(MAX_ITER, 1);
-A_T  = ctranspose(A);
 
 while iter < MAX_ITER,
     iter = iter + 1;
     
     % find orthonormal polar factor
-	try
-		V = ROInets.symmetric_orthogonalise(A * diag(d));
+    try
+        V = ROInets.symmetric_orthogonalise(ROInets.scale_cols( A, d ));
     catch ME
-		% use suppression of some variables such that rank is reduced as a
-		% stopping criterion
-		if iter > 1 && regexp(ME.identifier, 'RankError'),
-			% stop the process and use that last L computed. 
-			rank_reduction_warning();
-			break
+        % use suppression of some variables such that rank is reduced as a
+        % stopping criterion
+        if iter > 1 && regexp(ME.identifier, 'RankError'),
+            % stop the process and use that last L computed.
+            rank_reduction_warning();
+            break
         else
             throw(ME); % Re-throw the original error
-		end%if
-	end%try
-
+        end%if
+    end%try
+    
     % minimise rho = |A - V D|^2 w.r.t d
-    d = diag(A_T * V);
+    d = dot( A_b, V, 1 );
     
     % new best orthogonal estimate
-    L = V * diag(d);
+    L = ROInets.scale_cols( V, d );
     
     % compute error term
     E         = A - L;
-    rho(iter) = sum(diag( E' * E )); % inline trace
+    rho(iter) = sqrt(sum(dot( E, conj(E), 1 ))); % use sqrt(trace) instead - JH
     
     if DEBUG,
         fprintf('%s: iter %4d \t rho %g \n', mfilename, iter, rho(iter));  %#ok<UNRCH>
@@ -90,9 +91,9 @@ while iter < MAX_ITER,
 end%convergence loop
 
 if nargout > 3,
-	% output linear operator - run once more
-	[~, ~, ~, W] = ROInets.symmetric_orthogonalise(A * diag(d));
-	W      = diag(d) * W * diag(d);
+    % output linear operator - run once more
+    [~, ~, ~, W] = ROInets.symmetric_orthogonalise(ROInets.scale_cols( A, d ));
+    W = diag(d) * W * diag(d);
 end%if
 
 % tidy vector
@@ -100,9 +101,9 @@ rho(isnan(rho)) = [];
 
 if isequal(iter, MAX_ITER),
     warning([mfilename ':MaxIterationsHit'],                              ...
-            ['%s: hit max iterations: %d. ',                              ...
-             'You may not have found the optimal orthogonal matrix. \n'], ...
-             mfilename, MAX_ITER);
+        ['%s: hit max iterations: %d. ',                              ...
+        'You may not have found the optimal orthogonal matrix. \n'], ...
+        mfilename, MAX_ITER);
 end%if
 
 if DEBUG,
