@@ -164,24 +164,27 @@ factorList    = get_factors(DsFactor);
 filterType    = 'iir';%'fir'; % use fir filter for long time-series, and for higher downsample factors. Be aware that no phase shift correction is applied
 
 % downsample in factors lower than 13.
-memblks = osl_memblocks(size(HE), 1, 2000*2^20); % 2gb chunks
+memblks = osl_memblocks(size(HE), 1, 1000*2^20); % 1gb chunks
+% memblks = [1 rows(HE)]; % IT's BROKE ATM SO REVERT....
 for iBlk = 1:ROInets.rows(memblks),
 	voxelSet = memblks(iBlk,1):memblks(iBlk,2);
 	nVox     = length(voxelSet);
+	HB       = HE(voxelSet,:);
 	for iFactor = 1:length(factorList),
 		for iVoxel = nVox:-1:1, % loop backwards to initialise correctly
-			envelopedDataDS(iVoxel,:) = decimate(HE(voxelSet(iVoxel),:), ...
-												 factorList(iFactor),    ...
+			envelopedDataTmp(iVoxel,:) = decimate(HB(iVoxel,:),                  ...
+												 factorList(iFactor), ...
 												 filterType);
 		end%loop over parcels
 		t_ds = decimate(t(1:end), factorList(iFactor), filterType);
 
 		if iFactor < length(factorList), % if we're not in last iteration of loop
-			HE(voxelSet,:) = envelopedDataDS;
-			t              = t_ds;
-			clear envelopedDataDS
+			HB = envelopedDataTmp;
+			t  = t_ds;
+			clear envelopedDataTmp
 		end%if
 	end%for
+	envelopedDataDS(voxelSet,:) = envelopedDataTmp;
 end%for
 end%filter_and_downsample
 
