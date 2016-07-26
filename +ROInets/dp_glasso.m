@@ -271,7 +271,7 @@ P.KeepUnmatched = false; % If true, accept unexpected inputs
 defaults = struct('DEBUG',   false, ...
                   'verbose', 1,     ...
                   'optTol',  1e-4,  ...
-                  'maxIter', 100);
+                  'maxIter', 1000);
               
 numValidFcn = @(n) isempty(n) || ( isnumeric(n) &&  isscalar(n) && ...
                                   ~isinf(n)     && ~isnan(n)    && n >= 0);
@@ -297,7 +297,7 @@ end%get_defaults
 function l = objFun(S, P, rho)
 %OBJFUN objective function for minimisation routine is penalised log-
 % likelihood. 
-l = - ROInets.logdet(P, 'chol') + trace(S * P) + rho * sum(abs(P(:)));
+l = - ROInets.logdet(P, 'chol') + sum(S(:) .* P(:)) + rho * sum(abs(P(:))); % trace(S * P) == sum(S(:) .* P(:)) if S is symmetric
 end%minCond
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
