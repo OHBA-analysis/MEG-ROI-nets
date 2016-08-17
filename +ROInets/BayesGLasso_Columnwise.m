@@ -45,14 +45,15 @@ end
 
     apost = a_lambda + p*(p+1)/2; 
 
-ft_progress('init', 'text', '');
-cleanProgressDisplay = onCleanup(@() ft_progress('close'));
+% ft_progress('init', 'text', '');
+% cleanProgressDisplay = onCleanup(@() ft_progress('close'));
 for iter = 1: burnin+nmc    
             
        if(mod(iter,1000)==0),
-           ft_progress(iter / (burnin+nmc),              ...
-                       '    MCMC iter = %d out of %d\n', ...
-                       iter, burnin+nmc);
+%            ft_progress(iter / (burnin+nmc),              ...
+%                        '    MCMC iter = %d out of %d\n', ...
+%                        iter, burnin+nmc);
+	   fprintf('iter %i out of %i. \n', iter, burnin+nmc);
        end%if
 
        
