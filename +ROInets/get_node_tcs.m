@@ -364,7 +364,7 @@ if isa(voxelData, 'meeg'),
 	newMontage.labelnew = ROIlabels;
 	newMontage.name     = ['Parcellated ' currentMontage.name];
 	newMontage          = rmfield(newMontage, 'channels');
-	unit                = unique(units(nodeData));
+	unit                = unique(units(voxelData));
 	
 	% convert to spm object
 	nodeData = voxelData;
