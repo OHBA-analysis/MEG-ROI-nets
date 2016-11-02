@@ -1,8 +1,5 @@
-function [nodeData, voxelWeightings] = get_node_tcs(voxelData,    ...
-                                                    spatialBasis, ...
-                                                    timeCourseGenMethod, ...
-													ROIlabels)
-%GET_NODE_TCS extracts ROI time-courses
+function [nodeData, voxelWeightings] = get_node_tcs(voxelData,spatialBasis,timeCourseGenMethod,ROIlabels,output_meeg) 
+% GET_NODE_TCS extracts ROI time-courses
 %
 % methods for extracting node time courses 
 %
@@ -83,6 +80,15 @@ function [nodeData, voxelWeightings] = get_node_tcs(voxelData,    ...
 %% find representative time courses for each parcel
 % include quick hack to allow saved matrices to be passed in, to save on
 % memory
+
+% If isa(voxelData,'meeg') and output_meeg = true, then 
+% the node data will be saved as an online montage
+% Use output_meeg = false to use an meeg as input but to get
+% a numerical array as output
+if nargin < 5 || isempty(output_meeg) 
+  output_meeg = true;
+end
+
 if ischar(voxelData) && strcmp(voxelData(end-3:end), '.mat') && exist(voxelData, 'file'), 
     tmp       = load(voxelData);
     ff        = fieldnames(tmp);
@@ -354,7 +360,7 @@ end%switch
 ft_progress('close');
 
 % convert output into an online montage
-if isa(voxelData, 'meeg'),
+if isa(voxelData, 'meeg') && output_meeg
 
 	% set up new montage by premultiplication
 	nMontages           = voxelData.montage('getnumber');

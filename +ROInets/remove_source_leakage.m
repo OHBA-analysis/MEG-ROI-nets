@@ -1,4 +1,4 @@
-function nodeData = remove_source_leakage(nodeDataOrig, protocol)
+function nodeData = remove_source_leakage(nodeDataOrig, protocol, output_meeg)
 %REMOVE_SOURCE_LEAKAGE correct ROI time-courses for source leakage
 %
 % NODEDATA = REMOVE_SOURCE_LEAKAGE(NODEDATAORIG, PROTOCOL)
@@ -54,6 +54,11 @@ rankErrorMessage = ['The ROI time-course matrix is not full rank. \n',    ...
                     'at %d ROIs. \n',                                     ...
                     '    You could try reducing the number of ROIs, or ', ...
                     'using an alternative orthogonalisation method. \n'];
+
+if nargin < 3 || isempty(output_meeg) 
+  output_meeg = true;
+end
+
 switch protocol
     case 'none'
         % no orthogonalisation applied to parcel time-courses
@@ -137,7 +142,7 @@ fprintf('    Orthogonalising...\n');
 permutation                     = randperm(nParcels);
 permutationInverse(permutation) = 1:nParcels;
 
-if isa(nodeDataOrig, 'meeg'),
+if isa(nodeDataOrig, 'meeg') && output_meeg
 	% bugger the permutation bit for this faff
 	[~, ~, ~, W] = ROInets.householder_orthogonalise(nodeDataOrig(:,:).'); 
 	nodeData     = add_montage(nodeDataOrig, W, 'householder');
