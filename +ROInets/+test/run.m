@@ -1,0 +1,1 @@
+matlab.unittest.TestSuite.fromPackage('ROInets.test').run
