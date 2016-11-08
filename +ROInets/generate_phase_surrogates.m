@@ -1,4 +1,4 @@
-function surrogate = generate_phase_surrogate(data, preserve_correlation, mean_term, std_term)
+function surrogate = generate_phase_surrogates(data, preserve_correlation, mean_term, std_term,use_box_cox)
 %% Generate surrogate data though method 3 in Hurtado et al 2004. Statistical
 % method for detection of phase locking episodes in neural oscillations. J
 % Neurophysiol. 10.1152/jn.00853.2003.
@@ -15,6 +15,14 @@ function surrogate = generate_phase_surrogate(data, preserve_correlation, mean_t
 %    - std_term - Set the standard deviation of each channel independently. Can be
 %      1x1 or 1 x nchannels. By default, each channel is rescaled to the same standard deviation
 %      as the input data channel
+%	 - use_box_cox. false by default. If this is true, then boxcox1.m from OSL will be used to 
+%	   transform the data. Each channel gets its own transformation. The inverse transform will 
+%	   automatically be applied. Offsets are applied prior to doing the transform and inverse
+%	   transform, following Adam Baker's implementation. However, the final rescaling of the mean
+% 	   could lead to the surrogate containing negative values, even if the original data does not.
+%	   This should be fine for checking correlations, since none of the rescalings affect the correlation
+%	   except that if a subsequent analysis assumes the surrogate envelopes are positive, this may fail
+% 	   unless an additional offset is applied
 %
 % OUTPUTS
 %    - surrogate - the surrogate time series, same size as data
@@ -23,7 +31,9 @@ function surrogate = generate_phase_surrogate(data, preserve_correlation, mean_t
 % Andrew Quinn August 2015
 % Adjusted by GC to improve speed of fft
 
-[nSamples, nVars] = size(data);
+if nargin < 5 || isempty(use_box_cox) 
+	use_box_cox = false;
+end
 
 if nargin < 4 || isempty(std_term)
     % If the output std isn't defined, we'll use the std of the data
@@ -37,6 +47,21 @@ end
 
 if nargin < 2 || isempty(preserve_correlation) 
     preserve_correlation = false; % Generate a different phase offset vector for each channel
+end
+
+[nSamples, nVars] = size(data);
+
+if use_box_cox
+	if ~exist('boxcox1')
+		error('boxcox1.m not found. Has OSL been added to the path?');
+	end
+
+	lambda = nan(nVars,1);
+	c = nan(nVars,1);
+	for j = 1:nVars
+		[~,lambda(j),c(j)] = boxcox1(data(:,j),0);
+		data(:,j) = (data(:,1)+c(j)).^lambda(j);
+	end
 end
 
 % get amplitude spectrum
@@ -63,6 +88,15 @@ rand_spec = exp(newPhase).*amp_spec;
 
 % Create new time_course
 surrogate = ifft(rand_spec, nSamples);
+
+% If we rescaled the timeseries, undo the transformation, following 
+% Adam's thesis where raising to the power of 1/lambda covers all cases
+if use_box_cox
+	for j = 1:nVars
+		surrogate(:,j) = surrogate(:,j) - min(surrogate(:,j)) + min(data(:,j));
+		surrogate(:,j) = surrogate(:,j).^(1/lambda(j));
+	end
+end
 
 % demean
 surrogate = bsxfun(@minus, surrogate, mean(surrogate));
