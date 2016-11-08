@@ -10,11 +10,12 @@ function surrogate = generate_phase_surrogate(data, preserve_correlation, mean_t
 % INPUTS
 %    - data is the original timeseries, [nsamples x nchannels]
 %    - preserve_correlation - apply the same phase offset to each channel. False by default
-%    - mean_term - Apply an offset to the surrogate. By default, channels will have the same 
-%      mean as the input data. This is added to each channel, can be 1x1 or 1 x nchannels
-%    - std_term - Rescale the standard deviation of each channel independently. Can be
+%    - mean_term - Set the mean of the surrogate. By default, channels will have the same 
+%      mean as the input data. Can be 1x1 or 1 x nchannels
+%    - std_term - Set the standard deviation of each channel independently. Can be
 %      1x1 or 1 x nchannels. By default, each channel is rescaled to the same standard deviation
 %      as the input data channel
+%
 % OUTPUTS
 %    - surrogate - the surrogate time series, same size as data
 % 
@@ -39,30 +40,29 @@ if nargin < 2 || isempty(preserve_correlation)
 end
 
 % get amplitude spectrum
-nfft     = nSamples + mod(nSamples,2); % speed improvements with nfft multiple of 2, or even a mutiple of 2. 
-amp_spec = fft(data, nfft,1);      % no need to take abs as we can just add random phases
+amp_spec = fft(data, nSamples,1);      % no need to take abs as we can just add random phases
 
 % Generate phase noise
 % first element of spectrum is DC component, subsequent elements mirror
-% each other about nfft/2 + 1
+% each other about the Nyquist frequency, if present
+n_components = floor((nSamples-1)/2); % Number of components that *aren't* DC or Nyquist
 if preserve_correlation
-    noise = bsxfun(@times,ones(1,nVars),rand(nfft/2,1).* (2 * pi)); % Same phase shift for each channel
+    noise = bsxfun(@times,ones(1,nVars),rand(n_components,1).* (2 * pi)); % Same phase shift for each channel
 else
-    noise = rand(nfft/2, nVars) .* (2 * pi);
+    noise = rand(n_components, nVars) .* (2 * pi);
 end
 
-newPhase = [zeros(1,nVars); ... % DC term has no phase
-            1i .* noise;          ... % new phases, incl. central frequency
-            -1i .* flipud(noise(1:end-1,:))]; % second half uses conjugate phases, mirrored in order
+if rem(nSamples,2) % If odd number of samples, then Nyquist frequency is NOT present
+    newPhase = [zeros(1,nVars); 1i .* noise; -1i .* flipud(noise)]; % second half uses conjugate phases, mirrored in order
+else % Otherwise, include zero phase shift for the Nyquist frequency
+    newPhase = [zeros(1,nVars); 1i .* noise; zeros(1,nVars); -1i .* flipud(noise)]; % second half uses conjugate phases, mirrored in order
+end
 
 % Make new phase scrabled spectrum
-rand_spec = bsxfun(@times, exp(newPhase), amp_spec);
+rand_spec = exp(newPhase).*amp_spec;
 
 % Create new time_course
-surrogate = real(ifft(rand_spec, nfft));
-
-% remove padded zeros
-surrogate(nSamples+1:end,:) = [];
+surrogate = ifft(rand_spec, nSamples);
 
 % demean
 surrogate = bsxfun(@minus, surrogate, mean(surrogate));
