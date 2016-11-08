@@ -79,7 +79,7 @@ if transform, envData = log(envData); end
 
 % phase randomisation
 for iMode = nModes:-1:1,
-    newData(:,iMode) = ROInets.generate_phase_surrogates(envData(iMode,:)', 1); % Note transposition
+    newData(:,iMode) = ROInets.generate_phase_surrogates(envData(iMode,:)',false,0); % Note transposition
 end%for
 
 % undo transform
