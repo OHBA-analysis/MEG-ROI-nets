@@ -1,20 +1,16 @@
-function surrogate = generate_phase_surrogates(data, preserve_correlation, mean_term, std_term,use_box_cox)
+function surrogate = generate_phase_surrogates(data, preserve_correlation,use_box_cox)
 %% Generate surrogate data though method 3 in Hurtado et al 2004. Statistical
 % method for detection of phase locking episodes in neural oscillations. J
 % Neurophysiol. 10.1152/jn.00853.2003.
 %
 % This scrambles the phase spectrum whilst preserving the amplitude spectrum
+% The surrogate data is rescaled to the same mean and standard deviation
 %
 % surrogate = generate_phase_surrogate(data, preserve_correlation, mean_term, std_term)
 % 
 % INPUTS
 %    - data is the original timeseries, [nsamples x nchannels]
 %    - preserve_correlation - apply the same phase offset to each channel. False by default
-%    - mean_term - Set the mean of the surrogate. By default, channels will have the same 
-%      mean as the input data. Can be 1x1 or 1 x nchannels
-%    - std_term - Set the standard deviation of each channel independently. Can be
-%      1x1 or 1 x nchannels. By default, each channel is rescaled to the same standard deviation
-%      as the input data channel
 %	 - use_box_cox. false by default. If this is true, then boxcox1.m from OSL will be used to 
 %	   transform the data. Each channel gets its own transformation. The inverse transform will 
 %	   automatically be applied. Offsets are applied prior to doing the transform and inverse
@@ -31,18 +27,8 @@ function surrogate = generate_phase_surrogates(data, preserve_correlation, mean_
 % Andrew Quinn August 2015
 % Adjusted by GC to improve speed of fft
 
-if nargin < 5 || isempty(use_box_cox) 
+if nargin < 3 || isempty(use_box_cox) 
 	use_box_cox = false;
-end
-
-if nargin < 4 || isempty(std_term)
-    % If the output std isn't defined, we'll use the std of the data
-    std_term = std(data,1); % normalize by N, not N-1, to match original code
-end
-
-if nargin < 3 || isempty(mean_term)
-    % Set surrogate mean to the same as the input data
-    mean_term = mean(data);
 end
 
 if nargin < 2 || isempty(preserve_correlation) 
@@ -50,6 +36,8 @@ if nargin < 2 || isempty(preserve_correlation)
 end
 
 [nSamples, nVars] = size(data);
+mean_term = mean(data);
+std_term = std(data,1); % Use N-1 standard deviation to match original code
 
 if use_box_cox
 	if ~exist('boxcox1')
