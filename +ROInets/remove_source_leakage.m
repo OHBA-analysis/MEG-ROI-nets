@@ -102,7 +102,6 @@ function nodeData = find_closest_orthogonal_matrix(nodeDataOrig,     ...
 nParcels = ROInets.rows(nodeDataOrig);
 
 try
-    fprintf('    Orthogonalising...\n');
 	if isa(nodeDataOrig, 'meeg'),
 		[~, ~, ~, W] = orthogFunction(transpose(nodeDataOrig(:,:)));   
 		nodeData     = add_montage(nodeDataOrig, W, protocol);
@@ -136,8 +135,6 @@ if isRankDeficient,
           rankErrorMessage,         ...
           rank(nodeDataOrig), nParcels);
 end%if
-
-fprintf('    Orthogonalising...\n');
 
 permutation                     = randperm(nParcels);
 permutationInverse(permutation) = 1:nParcels;
