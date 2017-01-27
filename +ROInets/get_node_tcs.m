@@ -299,7 +299,8 @@ switch lower(timeCourseGenMethod)
             % a good indicator of sensible signal. 
             % Weight all voxels by the spatial map in question
             % AB - apply the mask first then weight, to reduce memory use
-            weightedTS  = voxelData(find(parcelMask),:); %#ok Can't use logical indexing
+            weightedTS  = voxelData(find(parcelMask),:,:); %#ok Can't use logical indexing
+            weightedTS  = reshape(weightedTS,[size(weightedTS,1),size(weightedTS,2)*size(weightedTS,3)]); % reshape to handle trials
             weightedTS  = weightedTS(:,goodSamples);
             weightedTS  = ROInets.scale_rows(weightedTS, thisMap(parcelMask));
 
