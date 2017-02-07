@@ -62,7 +62,7 @@ while iter < MAX_ITER,
     catch ME
         % use suppression of some variables such that rank is reduced as a
         % stopping criterion
-        if iter > 1 && regexp(ME.identifier, 'RankError'),
+        if iter > 1 && strcmp(ME.identifier, 'ROInets:RankError'),
             % stop the process and use that last L computed.
             rank_reduction_warning();
             break
