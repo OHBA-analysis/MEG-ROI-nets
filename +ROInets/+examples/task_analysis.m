@@ -1,4 +1,4 @@
-function correlationMats = example_task_analysis(varargin)
+function correlationMats = task_analysis(varargin)
 %EXAMPLE  example task analysis for epoched data from several sessions
 %
 % correlationMats = EXAMPLE_TASK_ANALYIS()

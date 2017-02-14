@@ -1,9 +1,9 @@
-function correlationMats = example_many_subj(varargin)
+function correlationMats = single_subject(varargin)
 %EXAMPLE  example analysis for a single subject
 %
-% correlationMats = EXAMPLE_MANY_SUBJ()
+% correlationMats = EXAMPLE()
 % for help, type
-% `help osl_network_analysis'
+% `help ROInets.run_individual_network_analysis'
 
 %	Copyright 2015 OHBA
 %	This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ function correlationMats = example_many_subj(varargin)
 
 
 % set path to source-reconstructed data
-dataDir = '/path/to/data/';
+dataFile = '/path/to/data/source_data_SPM_obj.mat';
 
 % choose a binary ROI map. Take care that the resolution of the nifti file
 % matches that of the source reconstruction.
@@ -39,12 +39,9 @@ parcelFile = fullfile(parcellationDirectory, ...
 % choose a results directory
 outDir = '/path/to/results/';
 
-% set objects in and names for each session
-for iFile = 1:10; % loop over D objects in directory
-    Dlist{iFile}       = fullfile(dataDir, ...
-                                  sprintf('source_data_SPM_obj_%d.mat', iFile));
-    sessionName{iFile} = sprintf('obj_%d', iFile);
-end%for
+% set a save file name
+resultsName = fullfile(outDir, 'myResults');
+sessionName = 'myBestSubject';
 
 % setup the ROI network settings
 Settings = struct();
@@ -63,14 +60,16 @@ Settings.EnvelopeParams.takeLogs  = true;                           % perform an
 Settings.frequencyBands           = {[8 13], [13 30], []};          % a set of frequency bands for analysis. Set to empty to use broadband. The bandpass filtering is performed before orthogonalisation. 
 Settings.timecourseCreationMethod = 'spatialBasis';                 % 'PCA',  'peakVoxel' or 'spatialBasis'
 Settings.outputDirectory          = outDir;                         % Set a directory for the results output
-Settings.groupStatisticsMethod    = 'fixed-effects';                % 'mixed-effects' or 'fixed-effects'
+Settings.groupStatisticsMethod    = 'mixed-effects';                % 'mixed-effects' or 'fixed-effects'
 Settings.FDRalpha                 = 0.05;                           % false determination rate significance threshold
 Settings.sessionName              = sessionName; 
 Settings.SaveCorrected            = struct('timeCourses',   false, ...  % save corrected timecourses
                                            'envelopes',     true,  ...  % save corrected power envelopes
                                            'variances',     false);     % save mean power in each ROI before correction
 
+                                       
 % run the ROI network analysis
-correlationMats = osl_network_analysis(Dlist, Settings);
-end%example_many_subj
+Settings        = ROInets.check_inputs(Settings);
+correlationMats = ROInets.run_individual_network_analysis(dataFile, Settings, resultsName);
+end%example_1subj
 % [EOF]
