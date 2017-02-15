@@ -1,25 +1,18 @@
-function correlationMats = single_subject(dataFile,parcelFile,outDir,sessionName)
-    % Example analysis for a single subject
+function correlationMats = many_subj(Dlist,parcelFile,outDir,sessionName)
+    % Example analysis for many subjects
     % 
     % INPUTS
-    % - dataFile: A single meeg objects or filenames for an meeg object
+    % - Dlist: array of meeg objects or filenames for meeg objects
     % - parcelFile: choose a binary ROI map. Take care that the resolution of the 
     %               nifti file matches that of the source reconstruction.
     % - outdir: choose a results directory
     % - sessionName: Optionally specify name of sessions (one for each entry in Dlist)
 
     if nargin < 4 || isempty(sessionName) 
-        sessionName = 'single_subject';
-    end
-    
-    if isa(datafile,'meeg')
-        assert(length(dataFile) == 1,'Only one input file is supported');
+        sessionName = arrayfun(@(x) sprintf('session_%d',x),1:length(Dlist),'UniformOutput',false);
     end
 
-    % set a save file name
-    resultsName = fullfile(outDir, 'myResults');
-
-    % setup the ROI network settings
+    % Set up the ROI network settings
     Settings = struct();
     Settings.spatialBasisSet          = parcelFile;                     % a binary file which holds the voxel allocation for each ROI - voxels x ROIs
     Settings.gridStep                 = 8; % mm                         % resolution of source recon and nifti parcellation file
@@ -36,13 +29,12 @@ function correlationMats = single_subject(dataFile,parcelFile,outDir,sessionName
     Settings.frequencyBands           = {[8 13], [13 30], []};          % a set of frequency bands for analysis. Set to empty to use broadband. The bandpass filtering is performed before orthogonalisation. 
     Settings.timecourseCreationMethod = 'spatialBasis';                 % 'PCA',  'peakVoxel' or 'spatialBasis'
     Settings.outputDirectory          = outDir;                         % Set a directory for the results output
-    Settings.groupStatisticsMethod    = 'mixed-effects';                % 'mixed-effects' or 'fixed-effects'
+    Settings.groupStatisticsMethod    = 'fixed-effects';                % 'mixed-effects' or 'fixed-effects'
     Settings.FDRalpha                 = 0.05;                           % false determination rate significance threshold
     Settings.sessionName              = sessionName; 
     Settings.SaveCorrected            = struct('timeCourses',   false, ...  % save corrected timecourses
                                                'envelopes',     true,  ...  % save corrected power envelopes
                                                'variances',     false);     % save mean power in each ROI before correction
-                              
+
     % Run the ROI network analysis
-    Settings        = ROInets.check_inputs(Settings);
-    correlationMats = ROInets.run_individual_network_analysis(dataFile, Settings, resultsName);
+    correlationMats = ROInets.run_network_analysis(Dlist, Settings);
