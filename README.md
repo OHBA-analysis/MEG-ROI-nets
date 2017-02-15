@@ -25,17 +25,11 @@ applying a symmetric multivariate orthogonalisation correction for source leakag
 
 ##### How to get started
 
-The `+ROInets` folder is a Matlab package. Don't change the name of the folder, 
-and make sure the folder (not necessarily its contents) is visible on your path
-
-View a brief summary of what each function does by typing `help ROInets.Contents`
-
-The top-level function is `ROInets.run_individual_network_analysis`. 
-View the helptext for this to view all the pipeline options. 
-
-Look at the example file (`edit ROInets.example`'`)
-
-Most of the functions have an attempt at informative help text.
+- The `+ROInets` folder is a Matlab package. Don't change the name of the folder, and make sure the folder (not necessarily its contents) is visible on your path
+- View a brief summary of what each function does by typing `help ROInets.Contents`
+- The top-level function is `ROInets.run_individual_network_analysis`. View the helptext for this to view all the pipeline options. 
+- Look at the example files in `+ROInets/+examples`
+- Most of the functions have an attempt at informative help text.
 
 ##### What paper to cite
 

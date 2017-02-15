@@ -1,6 +1,8 @@
 classdef test_rank_error < matlab.unittest.TestCase
 
-	% Some unit tests to verify properties of the phase randomization process
+	% Check that rank deficient node timeseries are correctly identified
+	% Depending on the orthogonalization method, rank errors can be thrown 
+	% at different levels. They should be propagated through remove_source_leakage()
 
 	methods(Test)
 		function test_rank_deficient(self)

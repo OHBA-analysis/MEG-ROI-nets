@@ -71,6 +71,6 @@ Settings.SaveCorrected            = struct('timeCourses',   false, ...  % save c
                                            'variances',     false);     % save mean power in each ROI before correction
 
 % run the ROI network analysis
-correlationMats = osl_network_analysis(Dlist, Settings);
+correlationMats = ROInets.run_network_analysis(Dlist, Settings);
 end%example_many_subj
 % [EOF]
