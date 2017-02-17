@@ -44,17 +44,6 @@ function nodeData = remove_source_leakage(nodeDataOrig, protocol, output_meeg)
 %	Originally written on: GLNXA64 by Giles Colclough and Stephen Smith.
 
 
-
-% catch cases where the rank of the node data is lower than the number of
-% nodes being orthogonalised
-rankErrorMessage = ['The ROI time-course matrix is not full rank. \n',    ...
-                    '    This prevents you from using an all-to-all ',    ...
-                    'orthogonalisation method. \n',                       ...
-                    '    Your data have rank %d, and you are looking ',   ...
-                    'at %d ROIs. \n',                                     ...
-                    '    You could try reducing the number of ROIs, or ', ...
-                    'using an alternative orthogonalisation method. \n'];
-
 if nargin < 3 || isempty(output_meeg) 
   output_meeg = true;
 end
@@ -63,30 +52,18 @@ switch protocol
     case 'none'
         % no orthogonalisation applied to parcel time-courses
         nodeData=nodeDataOrig;
-        
+
     case 'closest'
         % finds closest orthogonal set of vectors by applying symmetric 
         % orthogonalisation then iterating to find closest orthogonal matrix
-        orthogFunctionHandle = @ ROInets.closest_orthogonal_matrix;
-        
-        nodeData = find_closest_orthogonal_matrix(nodeDataOrig,         ...
-                                                  rankErrorMessage,     ...
-                                                  orthogFunctionHandle, ...
-												  protocol);
+        nodeData = find_closest_orthogonal_matrix(nodeDataOrig,@ROInets.closest_orthogonal_matrix,protocol);
         
     case 'symmetric'
         % finds closest orthonormal matrix
-        orthogFunctionHandle = @ ROInets.symmetric_orthogonalise;
-        
-        nodeData = find_closest_orthogonal_matrix(nodeDataOrig,         ...
-                                                  rankErrorMessage,     ...
-                                                  orthogFunctionHandle, ...
-												  protocol);
-                                               
+        nodeData = find_closest_orthogonal_matrix(nodeDataOrig,@ROInets.symmetric_orthogonalise,protocol);
         
     case 'householder'
-        nodeData = find_orthogonal_matrix_by_householder_reflections(...
-                                           nodeDataOrig, rankErrorMessage);
+        nodeData = find_orthogonal_matrix_by_householder_reflections(nodeDataOrig);
         
     otherwise
         error([mfilename ':UnrecognisedOrthMethod'], ...
@@ -94,50 +71,36 @@ switch protocol
 end%switch
 end%remove_source_leakage
 % -------------------------------------------------------------------------
-function nodeData = find_closest_orthogonal_matrix(nodeDataOrig,     ...
-                                                   rankErrorMessage, ...
-                                                   orthogFunction,   ...
-												   protocol)
+function nodeData = find_closest_orthogonal_matrix(nodeDataOrig,orthogFunction,protocol)
 %FIND_CLOSEST_ORTHOGONAL_MATRIX wrapper on orthogonalisation functions
 nParcels = ROInets.rows(nodeDataOrig);
 
-try
-    fprintf('    Orthogonalising...\n');
 	if isa(nodeDataOrig, 'meeg'),
 		[~, ~, ~, W] = orthogFunction(transpose(nodeDataOrig(:,:)));   
 		nodeData     = add_montage(nodeDataOrig, W, protocol);
-		
 	else
 		nodeData = transpose(orthogFunction(transpose(nodeDataOrig)));
 	end%if
-	
-% catch rank deficiency in node data
-catch ME
-    if regexp(ME.identifier, 'RankError'),
-        error([mfilename ':RankError'], ...
-              rankErrorMessage,         ...
-              rank(nodeDataOrig), nParcels);
-    else
-        rethrow(ME);
-    end%if
-end%try
+
 end%find_closest_orthogonal_matrix
 % -------------------------------------------------------------------------
-function nodeData = find_orthogonal_matrix_by_householder_reflections(...
-                                            nodeDataOrig, rankErrorMessage)
+function nodeData = find_orthogonal_matrix_by_householder_reflections(nodeDataOrig, rankErrorMessage)
 %FIND_ORTHOGONAL_MATRIX_BY_HOUSEHOLDER_REFLECTIONS wrapper on householder
 % orthogonalisation
 
 nParcels = ROInets.rows(nodeDataOrig);
 
 isRankDeficient = rank(nodeDataOrig) < nParcels;
-if isRankDeficient,
-    error([mfilename ':RankError'], ...
-          rankErrorMessage,         ...
-          rank(nodeDataOrig), nParcels);
+if isRankDeficient
+    rankErrorMessage = ['The ROI time-course matrix is not full rank. \n',    ...
+                        '    This prevents you from using an all-to-all ',    ...
+                        'orthogonalisation method. \n',                       ...
+                        '    Your data have rank %d, and you are looking ',   ...
+                        'at %d ROIs. \n',                                     ...
+                        '    You could try reducing the number of ROIs, or ', ...
+                        'using an alternative orthogonalisation method. \n'];
+    error('ROInets:RankError',rankErrorMessage,rank(nodeDataOrig), nParcels);
 end%if
-
-fprintf('    Orthogonalising...\n');
 
 permutation                     = randperm(nParcels);
 permutationInverse(permutation) = 1:nParcels;

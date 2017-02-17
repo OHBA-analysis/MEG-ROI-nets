@@ -1,4 +1,4 @@
-function correlationMats = osl_network_analysis(Dlist, Settings)
+function correlationMats = run_network_analysis(Dlist, Settings)
 %OSL_NETWORK_ANALYSIS	ROI correlation and partial correlation matrices
 %
 % [CORRELATIONMATS] = osl_network_analysis(DLIST, Settings) runs a

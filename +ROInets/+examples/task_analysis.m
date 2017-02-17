@@ -1,4 +1,4 @@
-function correlationMats = example_task_analysis(varargin)
+function correlationMats = task_analysis(varargin)
 %EXAMPLE  example task analysis for epoched data from several sessions
 %
 % correlationMats = EXAMPLE_TASK_ANALYIS()
@@ -76,6 +76,6 @@ Settings.GroupLevel.designMatrix       = [1 0                       % nSubjects 
 Settings.GroupLevel.contrasts          = [1  1;  % contrast 1
                                           1 -1]; % contrast 2
 % run the ROI network analysis
-correlationMats = osl_network_analysis(dataFiles, Settings);
+correlationMats = ROInets.run_network_analysis(dataFiles, Settings);
 end%example_many_subj
 % [EOF]
