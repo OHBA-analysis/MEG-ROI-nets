@@ -133,10 +133,19 @@ switch lower(timeCourseGenMethod)
         end%if
         spatialBasis = logical(spatialBasis);    
         % check that each voxel is only a member of one parcel
-        assert(~any(ROInets.row_sum(spatialBasis) > 1), ...
-               [mfilename ':MultipleParcelOccupancy'], ...
-               'Each voxel can be a member of at most one parcel. \n');
+        %assert(~any(ROInets.row_sum(spatialBasis') > 1), ...
+        %       [mfilename ':MultipleParcelOccupancy'], ...
+        %       'Each voxel should be a member of at most one parcel. \n');
 
+         % check that each voxel is only a member of one parcel
+        %if any(ROInets.row_sum(spatialBasis') > 1)
+        %    warning([mfilename ':MultipleParcelOccupancy', ...
+        %        'Each voxel should be a member of at most one parcel. \n'])
+        %end
+
+        
+        
+        
         % demean and variance normalise each voxel - 20 May 2014 Don't
         % variance normalise as MEG data are very smooth, and power is a
         % good indication of true sources

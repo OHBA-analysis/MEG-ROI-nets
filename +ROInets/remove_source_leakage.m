@@ -62,7 +62,7 @@ end
 switch protocol
     case 'none'
         % no orthogonalisation applied to parcel time-courses
-        
+        nodeData=nodeDataOrig;
         
     case 'closest'
         % finds closest orthogonal set of vectors by applying symmetric 
