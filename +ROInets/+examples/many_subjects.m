@@ -1,4 +1,4 @@
-function correlationMats = many_subj(Dlist,parcelFile,outDir,sessionName)
+function correlationMats = many_subjects(Dlist,parcelFile,outDir,sessionName)
     % Example analysis for many subjects
     % 
     % INPUTS
