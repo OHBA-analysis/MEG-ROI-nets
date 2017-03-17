@@ -1,4 +1,4 @@
-function [nodeData, voxelWeightings] = get_node_tcs(voxelData,spatialBasis,timeCourseGenMethod,ROIlabels,output_meeg) 
+function [nodeData, voxelWeightings] = get_node_tcs(voxelData,spatialBasis,timeCourseGenMethod,ROIlabels) 
 % GET_NODE_TCS extracts ROI time-courses
 %
 % methods for extracting node time courses 
@@ -81,14 +81,6 @@ function [nodeData, voxelWeightings] = get_node_tcs(voxelData,spatialBasis,timeC
 % include quick hack to allow saved matrices to be passed in, to save on
 % memory
 
-% If isa(voxelData,'meeg') and output_meeg = true, then 
-% the node data will be saved as an online montage
-% Use output_meeg = false to use an meeg as input but to get
-% a numerical array as output
-if nargin < 5 || isempty(output_meeg) 
-  output_meeg = true;
-end
-
 if ischar(voxelData) && strcmp(voxelData(end-3:end), '.mat') && exist(voxelData, 'file'), 
     tmp       = load(voxelData);
     ff        = fieldnames(tmp);
@@ -113,9 +105,7 @@ nParcels = ROInets.cols(spatialBasis);
 
 % sort out names for ROIs
 if nargin < 4 || isempty(ROIlabels),
-	for iParcel = nParcels:-1:1,
-		ROIlabels{iParcel,1} = sprintf('ROI%d', iParcel);
-	end%if
+  ROIlabels = arrayfun(@(x) sprintf('ROI %d',x),1:nParcels,'UniformOutput',false);
 else
 	assert(iscell(ROIlabels) && length(ROIlabels) == nParcels, ...
 		[mfilename ':BadROIlabels'],                         ...
@@ -123,6 +113,13 @@ else
 end%if
 
 ft_progress('init', 'text', '');
+
+if isa(voxelData,'meeg')
+  assert(voxelData.nchannels==size(spatialBasis,1),sprintf('Parcellation has %d voxels, but data has %d channels. Is the correct montage selected?',size(spatialBasis,1),voxelData.nchannels));
+else
+  assert(size(voxelData,1)==size(spatialBasis,1),sprintf('Parcellation has %d voxels, but data has %d rows. Is the data correctly oriented?',size(spatialBasis,1),size(voxelData,1)));
+end
+
 
 switch lower(timeCourseGenMethod)
     case 'pca'
@@ -360,25 +357,10 @@ end%switch
 
 ft_progress('close');
 
-% convert output into an online montage
-if isa(voxelData, 'meeg') && output_meeg
-
-	% set up new montage by premultiplication
-	nMontages           = voxelData.montage('getnumber');
-	currentMontage      = voxelData.montage('getmontage');
-	newMontage          = currentMontage;
-	newMontage.tra      = voxelWeightings.' * currentMontage.tra;
-	newMontage.labelnew = ROIlabels;
-	newMontage.name     = ['Parcellated ' currentMontage.name];
-	newMontage          = rmfield(newMontage, 'channels');
-	unit                = unique(units(voxelData));
-	
-	% convert to spm object
-	nodeData = voxelData;
-	nodeData = nodeData.montage('add', newMontage);
-	nodeData = nodeData.montage('switch', nMontages + 1);
-	nodeData = nodeData.units(:,unit{1});
-	nodeData.save();
-end%if
-end%get_node_tcs
-% [EOF]
+if isa(voxelData, 'meeg')
+  % convert output into an online montage
+  % Assume if ROInets is being used with SPM12 this is happening through OSL
+  % i.e. add_montage() is present
+  currentMontage      = voxelData.montage('getmontage');
+  nodeData = add_montage(voxelData,voxelWeightings.',['Parcellated ' currentMontage.name],ROIlabels);
+end

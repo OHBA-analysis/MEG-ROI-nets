@@ -1,4 +1,4 @@
-function nodeData = remove_source_leakage(nodeDataOrig, protocol, output_meeg)
+function nodeData = remove_source_leakage(nodeDataOrig, protocol)
 %REMOVE_SOURCE_LEAKAGE correct ROI time-courses for source leakage
 %
 % NODEDATA = REMOVE_SOURCE_LEAKAGE(NODEDATAORIG, PROTOCOL)
@@ -43,11 +43,6 @@ function nodeData = remove_source_leakage(nodeDataOrig, protocol, output_meeg)
 %	Contact: giles.colclough 'at' magd.ox.ac.uk
 %	Originally written on: GLNXA64 by Giles Colclough and Stephen Smith.
 
-
-if nargin < 3 || isempty(output_meeg) 
-  output_meeg = true;
-end
-
 switch protocol
     case 'none'
         % no orthogonalisation applied to parcel time-courses
@@ -76,7 +71,7 @@ nParcels = ROInets.rows(nodeDataOrig);
 
 	if isa(nodeDataOrig, 'meeg'),
 		[~, ~, ~, W] = orthogFunction(transpose(nodeDataOrig(:,:)));   
-		nodeData     = add_montage(nodeDataOrig, W, protocol);
+		nodeData     = add_montage(nodeDataOrig, W', protocol,nodeDataOrig.chanlabels);
 	else
 		nodeData = transpose(orthogFunction(transpose(nodeDataOrig)));
 	end%if
@@ -104,10 +99,10 @@ end%if
 permutation                     = randperm(nParcels);
 permutationInverse(permutation) = 1:nParcels;
 
-if isa(nodeDataOrig, 'meeg') && output_meeg
+if isa(nodeDataOrig, 'meeg')
 	% bugger the permutation bit for this faff
 	[~, ~, ~, W] = ROInets.householder_orthogonalise(nodeDataOrig(:,:).'); 
-	nodeData     = add_montage(nodeDataOrig, W, 'householder');
+	nodeData     = add_montage(nodeDataOrig, W', 'householder',nodeDataOrig.chanlabels);
 else
 	nodeData = ROInets.householder_orthogonalise(nodeDataOrig(permutation,:).').'; 
 	nodeData = nodeData(permutationInverse,:);
@@ -115,21 +110,3 @@ end
 
 end%find_orthogonal_matrix_by_householder_reflections
 
-
-function D = add_montage(D, W, protocol)
-%ADD_MONTAGE adds the mapping W' to object D.
-% set up new montage by premultiplication
-nMontages       = D.montage('getnumber');
-currentMontage  = D.montage('getmontage');
-newMontage      = currentMontage;
-unit            = unique(D.units());
-newMontage.tra  = W.' * currentMontage.tra;
-newMontage.name = [protocol ' orthogonalised ' currentMontage.name];
-
-% convert to spm object
-D = D.montage('add', newMontage);
-D = D.montage('switch', nMontages + 1);
-D = D.units(:,unit{1});
-D.save();
-end%add_montage
-% [EOF]
