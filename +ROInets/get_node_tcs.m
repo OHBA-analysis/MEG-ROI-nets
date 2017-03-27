@@ -157,7 +157,7 @@ switch lower(timeCourseGenMethod)
                 
             thisMask = spatialBasis(:, iParcel);
             if any(thisMask), % non-zero
-                parcelData = voxelData(find(thisMask),:); %#ok Can't use logical indexing
+                parcelData = voxelData(find(thisMask),:,:); %#ok Can't use logical indexing
                 parcelData = parcelData(:,goodSamples);
                 parcelData = ROInets.demean(parcelData, 2);
                 
