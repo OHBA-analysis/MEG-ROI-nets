@@ -38,7 +38,6 @@
 %   reformat_results                         - move session correlation mats to frequency band mats
 %   regression                               - Solves multivariate regression y = X*b + e using fast mex binaries
 %   remove_source_leakage                    - correct ROI time-courses for source leakage
-%   retrieve_analysis_from_cluster           - collects and formats results after
 %   row_sum                                  - Sum for each row.
 %   rows                                     - The number of rows.
 %   run_correlation_analysis                 - runs various correlations on node data
@@ -47,7 +46,6 @@
 %   scale_rows                               - Scale each row of a matrix.
 %   scomponents                              - Compute the strongly connected components of a graph
 %   setdiff_pos_int                          - Set difference of two sets of positive integers (much faster than built-in setdiff)
-%   submit_analysis_to_cluster               - submit a set of sessions for network analysis
 %   symmetric_orthogonalise                  - closest orthogonal matrix
 %   test_me                                  - test that pipeline runs
 %   z_to_p_two_tailed                        - convert standard z-value to p-value in two-tailed test
