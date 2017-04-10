@@ -12,7 +12,7 @@ function correlationMats = single_subject(dataFile,parcelFile,outDir,sessionName
         sessionName = 'single_subject';
     end
     
-    if isa(datafile,'meeg')
+    if isa(dataFile,'meeg')
         assert(length(dataFile) == 1,'Only one input file is supported');
     end
 
