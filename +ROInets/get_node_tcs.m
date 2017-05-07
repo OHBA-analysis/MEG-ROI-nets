@@ -126,7 +126,7 @@ switch lower(timeCourseGenMethod)
         if any(spatialBasis(:)~=0 & spatialBasis(:)~=1),
             warning([mfilename ':NonBinaryParcelMask'],    ...
                     ['Input parcellation is not binary. ', ...
-                     'It will be binarised. \n']);
+                     'Parcel weights will be removed. \n']);
         end%if
         spatialBasis = logical(spatialBasis);    
         % check that each voxel is only a member of one parcel
