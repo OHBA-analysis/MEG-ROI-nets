@@ -362,5 +362,7 @@ if isa(voxelData, 'meeg')
   % Assume if ROInets is being used with SPM12 this is happening through OSL
   % i.e. add_montage() is present
   currentMontage      = voxelData.montage('getmontage');
-  nodeData = add_montage(voxelData,voxelWeightings.',['Parcellated ' currentMontage.name],ROIlabels);
+  if ~isempty(currentMontage) 
+      nodeData = add_montage(voxelData,voxelWeightings.',['Parcellated ' currentMontage.name],ROIlabels);
+  end
 end
