@@ -348,7 +348,14 @@ switch lower(timeCourseGenMethod)
             
         end%loop over parcels
         
-        
+    case 'mean'
+      % Parcel timecourse will be the weighted average of voxels belonging to that parcel
+      voxelWeightings = bsxfun(@rdivide,spatialBasis,sum(spatialBasis));
+
+      if ~isa(voxelData, 'meeg')
+        nodeData = voxelWeightings'*voxelData;
+      end
+
     otherwise
         error([mfilename ':UnrecognisedTimeCourseMethod'],            ...
               ['Unrecognised method for finding ROI time-course. \n', ...
