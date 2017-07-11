@@ -349,6 +349,9 @@ switch lower(timeCourseGenMethod)
         end%loop over parcels
         
     case 'mean'
+      % WARNING - Sign flipping will affect the mean timecourse
+      % Use with caution - generally PCA is preferable to mean
+      
       % Parcel timecourse will be the weighted average of voxels belonging to that parcel
       voxelWeightings = bsxfun(@rdivide,spatialBasis,sum(spatialBasis));
 
