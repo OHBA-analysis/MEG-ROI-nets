@@ -37,10 +37,7 @@ applying a symmetric multivariate orthogonalisation correction for source leakag
 
 ##### Where to ask for help, or report bugs
 
-Get in touch with Giles at 
-
-- giles.colclough 'at' magd.ox.ac.uk
-- giles.colclough 'at' gmail.com
+For technical support or any other issues, please contact the OHBA Analysis Group at analysis@ohba.ox.ac.uk
 
 ##### An overview of the pipeline
 
