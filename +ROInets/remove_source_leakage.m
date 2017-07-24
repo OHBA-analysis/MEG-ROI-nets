@@ -67,11 +67,18 @@ end%remove_source_leakage
 % -------------------------------------------------------------------------
 function nodeData = find_closest_orthogonal_matrix(nodeDataOrig,orthogFunction,protocol)
 %FIND_CLOSEST_ORTHOGONAL_MATRIX wrapper on orthogonalisation functions
-nParcels = ROInets.rows(nodeDataOrig);
+    nParcels = ROInets.rows(nodeDataOrig);
 
-	if isa(nodeDataOrig, 'meeg'),
+	if isa(nodeDataOrig, 'meeg')
+        currentMontage      = nodeDataOrig.montage('getmontage');
+        if isempty(currentMontage)
+            name = sprintf('%s leakage correction',protocol);
+        else
+            name = sprintf('%s leakage correction - %s',protocol,currentMontage.name);
+        end
+
 		[~, ~, ~, W] = orthogFunction(transpose(nodeDataOrig(:,:)));   
-		nodeData     = add_montage(nodeDataOrig, W', protocol,nodeDataOrig.chanlabels);
+		nodeData     = add_montage(nodeDataOrig, W',name,nodeDataOrig.chanlabels);
 	else
 		nodeData = transpose(orthogFunction(transpose(nodeDataOrig)));
 	end%if
