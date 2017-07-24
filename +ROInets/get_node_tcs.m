@@ -1,85 +1,96 @@
-function [nodeData, voxelWeightings] = get_node_tcs(voxelData,spatialBasis,timeCourseGenMethod,ROIlabels) 
+function [nodeData, voxelWeightings] = get_node_tcs(voxelData,spatialBasis,timeCourseGenMethod,ROIname,ROIlabels) 
 % GET_NODE_TCS extracts ROI time-courses
 %
-% methods for extracting node time courses 
+% INPUTS
+% - voxelData: (nVoxels x nSamples) matrix *OR* a filename for a .mat file
+%   containing one variable with a (nVoxels x nSamples) matrix *OR* a SPM MEEG
+%   object
+% - spatialBasis: (nVoxels x nParcels) logical matrix of parcel membership OR
+%   (nVoxels x nSamples) matrix
+% - timeCourseGenMethod: one of {'PCA','peakVoxel','spatialBasis','mean'}.
+%   'spatialBasis' is only valid if spatialBasis is (nVoxels x nSamples)
+% - ROI_name: if voxelData is an MEEG object, write new montage with this
+%   string within the name
+% - ROIlabels: if voxelData is an MEEG object, label channels with this cell
+%   array (must contain nParcels elements)
 %
-% NODEDATA = GET_NODE_TCS(VOXELDATA, PARCELFLAG, METHOD)
-%   produces orthogonalised node time-courses NODEDATA from 
-%   (nVoxels x nSamples) matrix of beamformed data VOXELDATA. VOXELDATA may
-%   be passed in as an array, or as the filename of a saved .MAT file. 
+% OUTPUTS
+% - nodeData: (nParcels x nSamples) matrix of node timecourses if voxelData
+%   was a matrix, *or* an SPM MEEG object with a new online montage containing
+%   nParcels channels
+% - voxelWeightings: relative weighting of voxels over the brain, used to
+%   construct the time-course for each ROI.
 %
-%   PARCELFLAG is a logical array (nVoxels x nParcels) which identifies
-%   the voxels in each parcel. Each column identifies the voxels 
-%   making up each parcel. True entries indicate membership. 
+% USAGE PATTERNS
 %
-%   METHOD chooses how the ROI time-course is created. It can be:
-%     'PCA'   - take 1st PC of voxels 
-%     'peakVoxel' - voxel with the maximum variance
-%     note that the mean timecourse suffers issues relating to sign
-%     ambiguities, and so is not currently an option.
+% There are broadly two usage choices
 %
-% NODEDATA = GET_NODE_TCS(VOXELDATA, SPATIALBASIS, METHOD)
-%   it is also possible to use a spatial basis set (e.g. from group ICA) to
-%   infer parcel time-courses. Each spatial map (held in columns) is a
-%   whole-brain map - each map can be non-binary and maps may overlap.
-%   SPATIALBASIS is therefore an (nVoxels x nSamples) matrix. 
+% - voxelData could be
+%   - a matrix, in which case the output (nodeData) is a matrix
+%   - an MEEG object, in which case the output (nodeData) is an MEEG object
+%     with a new online montage
+% - spatialBasis could be
+%   - parcel membership, in which case spatialBasis is interpreted as (nVoxels
+%     x nParcels) and timecourseGenMethod could be one of
+%     {'PCA','peakVoxel','mean'}
+%   - A spatial basis set (e.g. from group ICA), in which case spatialBasis is
+%     interpreted as (nVoxels x nSamples) and timecourseGenMethod should be
+%     set to 'spatialBasis'
 %
-%   Note that the spatial basis should be orthogonal, or nearly so. This is
-%   because parcel data are computed one parcel at a time, without multiple
-%   regression, which is valid for Data = SB * NodeData + e only if SB are
-%   orthogonal. 
-%
-%   Options for METHOD are 
-%      'spatialBasis' - The ROI time-course for each spatial map is the 1st 
-%                       PC from all voxels, weighted by the spatial map. 
-%
-% NODEDATA = GET_NODE_TCS(D, PARCELFLAG, METHOD, ROINAMES) reads in data 
-%   from an SPM MEEG object D, saving the results NODEDATA as a new SPM
-%   object with online montage. ROINAMES holds the channel names of the new
-%   montage. 
-%
-% [NODEDATA, VOXEL_WEIGHTINGS] = GET_NODE_TCS(...)
-%    will return the relative weighting of voxels over the brain, used to
-%    construct the time-course for each ROI. 
-
-
-% Spatial basis algorithm:
-% 1. Scale all maps so they have a positive peak of height 1
+% TIMECOURSE METHODS
 % 
-% For each map in the spatial basis:
+% timeCourseGenMethod chooses how the ROI time-course is created. It can be:
+%   - 'PCA'   - take 1st PC of voxels
+%   - 'peakVoxel' - voxel with the maximum variance
+%   - 'mean' - NOT RECOMMENDED. Mean timecourse of voxels. This method is not
+%     sign-invariant which makes it invalid for most beamformer data.
+%   - 'spatialBasis' - Infer timecourses of a spatial basis set that is
+%     (nVoxels x nSamples). The ROI time-course for each spatial map is the
+%     1st PC from all voxels, weighted by the spatial map.
+%
+% SPATIAL BASIS INPUT SPECIFICATION
 % 
-%     2. Variance-normalise the clean voxel time-series. (This is now turned off.) 
-%        Weight by the clean spatial map. 
+% If 'spatialBasis' is a parcel membership matrix, then it should be a logical
+% array (nVoxels x nParcels) which identifies the voxels in each parcel. Each
+% column identifies the voxels making up each parcel. True entries indicate
+% membership.
 % 
-%     3. Perform a PCA. Extract the coefficients of the first PC to represent the node time-course
+% If 'spatialBasis' is a spatial basis set (e.g. from group ICA) then each
+% spatial map (held in columns) is a whole-brain map - each map can be non-
+% binary and maps may overlap. spatialBasis is therefore an (nVoxels x
+% nSamples) matrix. Note that the spatial basis should be orthogonal, or
+% nearly so. This is because parcel data are computed one parcel at a time,
+% without multiple regression, which is valid for Data = SB * NodeData + e
+% only if SB are orthogonal.
+%
+% SPATIAL BASIS ALGORITHM
+%
+% First scale all maps so they have a positive peak of height 1. Then for each
+% map in the spatial basis:
 % 
-%     4. Re-weight the node time-course to match the variance in the ROI. 
-    
-
-%	Copyright 2014 OHBA, FMRIB
-%	This program is free software: you can redirstribute it and/or modify
-%	it under the terms of the GNU General Public License as published by
-%	the Free Software Foundation, either version 3 of the License, or
-%	(at your option) any later version.
+%     1. Variance-normalise the clean voxel time-series. (This is now turned
+%        off.) Weight by the clean spatial map.
+% 
+%     2. Perform a PCA. Extract the coefficients of the first PC to represent
+%        the node time-course
+% 
+%     3. Re-weight the node time-course to match the variance in the ROI.
+%    
+%
+% Copyright 2014-2017 OHBA, FMRIB This program is free software: you can
+% redirstribute it and/or modify it under the terms of the GNU General Public
+% License as published by the Free Software Foundation, either version 3 of
+% the License, or (at your option) any later version.
 %	
-%	This program is distributed in the hope that it will be useful,
-%	but WITHOUT ANY WARRANTY; without even the implied warranty of
-%	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-%	GNU General Public License for more details.
+% This program is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+% more details.
 %	
-%	You should have received a copy of the GNU General Public License
-%	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-%	$LastChangedBy: giles.colclough@gmail.com $
-%	$Revision: 375 $
-%	$LastChangedDate: 2015-01-12 18:21:57 +0000 (Mon, 12 Jan 2015) $
-%	Contact: giles.colclough 'at' magd.ox.ac.uk
-%	Originally written on: GLNXA64 by Giles Colclough and Stephen Smith.
+% You should have received a copy of the GNU General Public License along with
+% this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %% find representative time courses for each parcel
-% include quick hack to allow saved matrices to be passed in, to save on
-% memory
 
 if ischar(voxelData) && strcmp(voxelData(end-3:end), '.mat') && exist(voxelData, 'file'), 
     tmp       = load(voxelData);
@@ -104,13 +115,18 @@ end%if
 nParcels = ROInets.cols(spatialBasis);
 
 % sort out names for ROIs
-if nargin < 4 || isempty(ROIlabels),
+if nargin < 5 || isempty(ROIlabels),
   ROIlabels = arrayfun(@(x) sprintf('ROI %d',x),1:nParcels,'UniformOutput',false);
 else
 	assert(iscell(ROIlabels) && length(ROIlabels) == nParcels, ...
 		[mfilename ':BadROIlabels'],                         ...
 		'ROIlabels should be a cell array matching the number of ROIs in the parcellation. \n');
 end%if
+
+if nargin < 4 || isempty(ROIname) 
+  ROIname = 'Parcellated';
+end
+
 
 ft_progress('init', 'text', '');
 
@@ -373,9 +389,9 @@ if isa(voxelData, 'meeg')
   % i.e. add_montage() is present
   currentMontage      = voxelData.montage('getmontage');
   if isempty(currentMontage)
-    name = 'Parcellated';
+    name = ROIname;
   else
-    name = ['Parcellated ' currentMontage.name];
+    name = [ROIname ' - ' currentMontage.name];
   end
 
   nodeData = add_montage(voxelData,voxelWeightings.',name,ROIlabels);
