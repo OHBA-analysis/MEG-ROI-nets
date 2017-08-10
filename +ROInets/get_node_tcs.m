@@ -6,9 +6,8 @@ function [nodeData, voxelWeightings] = get_node_tcs(voxelData,spatialBasis,timeC
 %   containing one variable with a (nVoxels x nSamples) matrix *OR* a SPM MEEG
 %   object
 % - spatialBasis: (nVoxels x nParcels) logical matrix of parcel membership OR
-%   (nVoxels x nSamples) matrix
+%   (nVoxels x nParcels) matrix with parcel membership weights
 % - timeCourseGenMethod: one of {'PCA','peakVoxel','spatialBasis','mean'}.
-%   'spatialBasis' is only valid if spatialBasis is (nVoxels x nSamples)
 % - ROI_name: if voxelData is an MEEG object, write new montage with this
 %   string within the name
 % - ROIlabels: if voxelData is an MEEG object, label channels with this cell
@@ -30,12 +29,12 @@ function [nodeData, voxelWeightings] = get_node_tcs(voxelData,spatialBasis,timeC
 %   - an MEEG object, in which case the output (nodeData) is an MEEG object
 %     with a new online montage
 % - spatialBasis could be
-%   - parcel membership, in which case spatialBasis is interpreted as (nVoxels
-%     x nParcels) and timecourseGenMethod could be one of
+%   - parcel membership, in which case spatialBasis should be a logical matrix
+%     consisting of 1s and 0s and timecourseGenMethod can be
 %     {'PCA','peakVoxel','mean'}
-%   - A spatial basis set (e.g. from group ICA), in which case spatialBasis is
-%     interpreted as (nVoxels x nSamples) and timecourseGenMethod should be
-%     set to 'spatialBasis'
+%   - A spatial basis set (e.g. from group ICA), in which case spatialBasis
+%     has voxel weights for each parcel that can be weighted and overlapping,
+%     and timecourseGenMethod should be set to 'spatialBasis'
 %
 % TIMECOURSE METHODS
 % 
@@ -46,7 +45,9 @@ function [nodeData, voxelWeightings] = get_node_tcs(voxelData,spatialBasis,timeC
 %     sign-invariant which makes it invalid for most beamformer data.
 %   - 'spatialBasis' - Infer timecourses of a spatial basis set that is
 %     (nVoxels x nSamples). The ROI time-course for each spatial map is the
-%     1st PC from all voxels, weighted by the spatial map.
+%     1st PC from all voxels, weighted by the spatial map. If the parcellation
+%     is unweighted and non-overlapping, 'spatialBasis' will give the same
+%     result as 'PCA' except with a dfiferent normalization
 %
 % SPATIAL BASIS INPUT SPECIFICATION
 % 
@@ -57,11 +58,10 @@ function [nodeData, voxelWeightings] = get_node_tcs(voxelData,spatialBasis,timeC
 % 
 % If 'spatialBasis' is a spatial basis set (e.g. from group ICA) then each
 % spatial map (held in columns) is a whole-brain map - each map can be non-
-% binary and maps may overlap. spatialBasis is therefore an (nVoxels x
-% nSamples) matrix. Note that the spatial basis should be orthogonal, or
-% nearly so. This is because parcel data are computed one parcel at a time,
-% without multiple regression, which is valid for Data = SB * NodeData + e
-% only if SB are orthogonal.
+% binary and maps may overlap. Note that the spatial basis should be
+% orthogonal, or nearly so. This is because parcel data are computed one
+% parcel at a time, without multiple regression, which is valid for Data = SB
+% * NodeData + e only if SB are orthogonal.
 %
 % SPATIAL BASIS ALGORITHM
 %
