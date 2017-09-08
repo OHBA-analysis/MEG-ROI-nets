@@ -81,7 +81,7 @@ end;
 
 if ROInets.cols(rePackedData) < NII_MAX_SIZE,
     % save using osl function
-    fileNameOut=nii_quicksave(rePackedData, filename, varargin{:});
+    fileNameOut=nii.quicksave(rePackedData, filename, varargin{:});
     
 else
     fprintf('Nii file limit exceeded, saving as .mat \n');
