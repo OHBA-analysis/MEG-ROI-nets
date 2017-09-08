@@ -287,7 +287,7 @@ save(fullfile(outputDirectory, 'ROInetworks_settings.mat'), 'Settings');
 % load parcellation
 parcelFile = Settings.spatialBasisSet;
 if ~isempty(parcelFile) && ischar(parcelFile), 
-    spatialBasis = nii_quickread(parcelFile, Settings.gridStep);
+    spatialBasis = nii.quickread(parcelFile, Settings.gridStep);
 elseif (islogical(parcelFile) || isnumeric(parcelFile)) && ismatrix(parcelFile), % expecting vox x parcels
     spatialBasis = parcelFile;
 else
@@ -941,7 +941,7 @@ if Settings.SaveCorrected.ROIweightings,
                                     bandName '_ROI_timecourse_weightings']);
     ROInets.make_directory(saveDir);
     try
-        nii_quicksave(allVoxelWeightings, ROItcWeightSaveFile, Settings.gridStep);
+        nii.quicksave(allVoxelWeightings, ROItcWeightSaveFile, Settings.gridStep);
     catch % perhaps we have a weird number of voxels
         save(ROItcWeightSaveFile, 'allVoxelWeightings');
     end%try
