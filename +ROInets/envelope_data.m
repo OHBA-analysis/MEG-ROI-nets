@@ -219,11 +219,16 @@ winsize  = round(windowLength * Fs);
 
 for iVoxel = nVoxels:-1:1, % loop backwards to initialise correctly
     % moving average
-    envelopedData(iVoxel,:) = osl_movavg(HE(iVoxel,:), ...
+    if winsize>0
+        envelopedData(iVoxel,:) = osl_movavg(HE(iVoxel,:), ...
                                          t, ...
                                          winsize, ...
                                          overlap, ...
                                          useHanningWindow);
+    else
+        envelopedData(iVoxel,:)=HE(iVoxel,:);
+    end
+    
 end%loop over parcels
 
 DsFactor = length(t) / size(envelopedData, 2);
