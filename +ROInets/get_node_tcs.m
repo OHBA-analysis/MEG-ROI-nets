@@ -105,8 +105,7 @@ elseif ischar(voxelData),
            '  Ensure the file exists and has a .mat extension. ']);
 
 elseif isa(voxelData,'meeg')
-    goodSamples = find(~all(badsamples(voxelData,':',':',':')));
-
+    goodSamples = good_samples(voxelData);
 else
     % data passed in
     goodSamples = true(1,ROInets.cols(voxelData));
@@ -292,7 +291,9 @@ switch lower(timeCourseGenMethod)
             temporalSTD = max(sqrt(osl_source_variance(voxelData)), eps);
         else
             temporalSTD = max(std(voxelData, [], 2), eps);
-        end      
+        end
+
+        voxelWeightings = zeros(size(spatialBasis)); % Preallocate the nvoxels x nparcels weight matrix      
         
         % find time-course for each spatial basis map
         for iParcel = nParcels:-1:1, % allocate memory on the fly
