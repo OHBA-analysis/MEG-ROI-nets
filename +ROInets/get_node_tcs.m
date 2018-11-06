@@ -206,7 +206,8 @@ switch lower(timeCourseGenMethod)
                          'with the analysis. \n'],                         ...
                          mfilename, iParcel);
                      
-                nodeTS = zeros(1, ROInets.cols(voxelData));
+                %nodeTS = zeros(1, ROInets.cols(voxelData));
+		nodeTS = zeros(1, size(voxelData,2)*size(voxelData,3));
             end%if
             
             nodeData(iParcel,:) = nodeTS;
