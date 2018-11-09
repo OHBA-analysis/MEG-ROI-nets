@@ -175,7 +175,8 @@ switch lower(timeCourseGenMethod)
                 parcelData = voxelData(find(thisMask),:,:); %#ok Can't use logical indexing
                 parcelData = parcelData(:,goodSamples);
                 parcelData = ROInets.demean(parcelData, 2);
-                
+                which_nan = isnan(parcelData);
+                parcelData(which_nan) = 0;
                 [U, S, V]  = ROInets.fast_svds(parcelData, 1);
                 PCAscores  = S * V';
                 
