@@ -2,7 +2,7 @@ function CorrMats = run_individual_network_analysis(D,        ...
                                                     Settings, ...
                                                     resultsSaveName, ...
                                                     iSession)
-%RUN_INDIVIDUAL_CORRELATION_ANALYSIS runs a single session network analysis
+%RUN_INDIVIDUAL_NETWORK_ANALYSIS runs a single session network analysis
 %
 % CORRMATS = RUN_INDIVIDUAL_NETWORK_ANALYSIS(SPMMEEG, SETTINGS, SAVENAME)
 %   performs a network correlation analysis between ROIs on a single subject. 
@@ -286,9 +286,9 @@ save(fullfile(outputDirectory, 'ROInetworks_settings.mat'), 'Settings');
 
 % load parcellation
 parcelFile = Settings.spatialBasisSet;
-if ~isempty(parcelFile) && ischar(parcelFile), 
+if ~isempty(parcelFile) && ischar(parcelFile)
     spatialBasis = nii.quickread(parcelFile, Settings.gridStep);
-elseif (islogical(parcelFile) || isnumeric(parcelFile)) && ismatrix(parcelFile), % expecting vox x parcels
+elseif (islogical(parcelFile) || isnumeric(parcelFile)) && ismatrix(parcelFile) % expecting vox x parcels
     spatialBasis = parcelFile;
 else
     error([mfilename ':ParcelReadFail'], ...

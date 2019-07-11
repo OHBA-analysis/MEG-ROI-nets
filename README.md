@@ -32,7 +32,7 @@ This package was originally developed by [@GilesColclough](https://github.com/Gi
 
 This package is distributed as part of [OSL](https://ohba-analysis.github.io/osl-docs/); this is how it should be installed on your machine. 
 
- - The `+ROInets` folder is a Matlab package. Do not change the name of this folder, and do not add its contents on your path. All the functions inside it can be used by typing e.g. `ROInets.run_network_analysis`.
+ - The `+ROInets` folder is a Matlab package. Do not change the name of this folder, and do not add its contents on your path. All the functions inside it can be used with a "dot-syntax", by typing e.g. `ROInets.run_network_analysis`.
  - For a brief summary of what each function does, type `help ROInets.Contents`. The help text of each function should provide more information, and examples can be found in `+ROInets/+examples`.
  - The top-level function is `ROInets.run_individual_network_analysis`. View the helptext for this to view all the pipeline options. 
  - If you often use this package, and would like to avoid typing the prefix `ROInets.*` all the time, check out [`import`](https://uk.mathworks.com/help/matlab/ref/import.html).

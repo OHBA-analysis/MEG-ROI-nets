@@ -29,7 +29,7 @@ function out = check_inputs(Settings)
 %% Define object
 Inputs               = inputParser;
 Inputs.CaseSensitive = false;
-Inputs.FunctionName  = 'run_individual_network_analysis';
+Inputs.FunctionName  = 'run_network_analysis';
 Inputs.StructExpand  = true;  % If true, can pass parameter-value pairs in a struct
 Inputs.KeepUnmatched = false; % If true, accept unexpected inputs
 
