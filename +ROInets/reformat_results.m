@@ -25,7 +25,7 @@ function correlationMats = reformat_results(mats, Settings)
 %	$LastChangedBy: adambaker86@gmail.com $
 %	$Revision: 261 $
 %	$LastChangedDate: 2014-10-20 20:19:04 +0100 (Mon, 20 Oct 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: GLNXA64 by Giles Colclough, 11-Apr-2014 12:14:41
 
 for iSession = Settings.nSessions:-1:1,  

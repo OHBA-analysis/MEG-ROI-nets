@@ -55,7 +55,7 @@ function [h, z_thresh, q] = false_discovery_rate(z, alpha, FDRmethod)
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 365 $
 %	$LastChangedDate: 2014-12-13 19:03:09 +0000 (Sat, 13 Dec 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: GLNXA64 by Giles Colclough, 16-Jun-2014
 
 % input checking

@@ -33,7 +33,7 @@ function [L, d, rho, W] = closest_orthogonal_matrix(A)
 %	$LastChangedBy$
 %	$Revision$
 %	$LastChangedDate$
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 07-Aug-2014 13:27:52
 %	Optimised by JH on Jul 19th 2016
 

@@ -19,7 +19,7 @@ function FAIL = test_me()
 %	$LastChangedBy$
 %	$Revision$
 %	$LastChangedDate$
-%	Contact: giles.colclough@magd.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 12-Jan-2015 15:17:08
 
 % These are hardly comprehensive unit tests, but better than nowt...
@@ -239,7 +239,7 @@ Settings.GroupLevel.contrasts          = [1  1;  % contrast 1
                                           1 -1]; % contrast 2
 
 try
-    CorrMats = osl_network_analysis(dataFiles, Settings);
+    CorrMats = run_network_analysis(dataFiles, Settings);
 catch ME
     fprintf('%s: Test 4 failed. \n', mfilename);
     rethrow(ME);

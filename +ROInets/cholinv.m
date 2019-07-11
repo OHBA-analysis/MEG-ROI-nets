@@ -33,7 +33,7 @@ function U = cholinv(M, isSparse)
 %	$LastChangedBy$
 %	$Revision$
 %	$LastChangedDate$
-%	Contact: giles.colclough@magd.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 02-Mar-2015 20:27:04
 
 if 1==nargin || ~isSparse,

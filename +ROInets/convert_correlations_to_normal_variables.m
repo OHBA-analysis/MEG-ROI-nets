@@ -24,7 +24,7 @@ function corrMats = convert_correlations_to_normal_variables(corrMats, ...
 %	$LastChangedBy: adambaker86@gmail.com $
 %	$Revision: 261 $
 %	$LastChangedDate: 2014-10-20 20:19:04 +0100 (Mon, 20 Oct 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 17-Apr-2014 11:10:31
 
 nullHypothesisCorrelation           = 0;

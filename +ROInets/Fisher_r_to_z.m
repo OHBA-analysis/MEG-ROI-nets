@@ -41,7 +41,7 @@ function [Z, z, p] = Fisher_r_to_z(r, N, rho0, sigma)
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 229 $
 %	$LastChangedDate: 2014-08-07 20:51:36 +0100 (Thu, 07 Aug 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: GLNXA64 by Giles Colclough, 14-Feb-2014 12:26:45
 
 

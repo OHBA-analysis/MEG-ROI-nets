@@ -23,7 +23,7 @@ function out = check_inputs(Settings)
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 374 $
 %	$LastChangedDate: 2015-01-12 17:30:23 +0000 (Mon, 12 Jan 2015) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 17-Mar-2014 18:23:47
 
 %% Define object

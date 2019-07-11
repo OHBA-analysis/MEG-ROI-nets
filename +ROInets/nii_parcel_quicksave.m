@@ -33,7 +33,7 @@ function fileNameOut = nii_parcel_quicksave(data, parcelFlag, filename, varargin
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 213 $
 %	$LastChangedDate: 2014-07-24 12:39:09 +0100 (Thu, 24 Jul 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: GLNXA64 by Giles Colclough, 10-Dec-2013 10:07:57
 
 NII_MAX_SIZE = 32767;

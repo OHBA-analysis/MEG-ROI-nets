@@ -26,7 +26,7 @@ function [O, Q, R, W] = householder_orthogonalise(A)
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 239 $
 %	$LastChangedDate: 2014-08-15 14:58:49 +0100 (Fri, 15 Aug 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: GLNXA64 by Giles Colclough, 06-Nov-2013 13:35:17
 
 [Q, R] = qr(A,0);

@@ -3,7 +3,7 @@ function correlationMats = task_analysis(varargin)
 %
 % correlationMats = EXAMPLE_TASK_ANALYIS()
 % for help, type
-% `help osl_network_analysis'
+% `help run_network_analysis'
 
 %	Copyright 2015 OHBA
 %	This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@ function correlationMats = task_analysis(varargin)
 %	$LastChangedBy$
 %	$Revision$
 %	$LastChangedDate$
-%	Contact: giles.colclough@magd.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 12-Jan-2015 15:25:47
 
 

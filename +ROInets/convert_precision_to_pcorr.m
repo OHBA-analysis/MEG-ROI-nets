@@ -41,7 +41,7 @@ function [pcorr, invVar, Aguess] = convert_precision_to_pcorr(precision)
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 213 $
 %	$LastChangedDate: 2014-07-24 12:39:09 +0100 (Thu, 24 Jul 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: GLNXA64 by Giles Colclough, 18-Nov-2013 13:42:28
 
 % find the inverse variances

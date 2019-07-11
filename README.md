@@ -1,4 +1,7 @@
-### ROInets
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+## ROInets
 
 **A Matlab package for performing leakage-robust network inference between ROIs in MEG data**
 
@@ -11,43 +14,48 @@ in source-reconstructured MEG data, analysing amplitude correlations in
 band-limited power using a Gaussian Markov Random Field network model, after 
 applying a symmetric multivariate orthogonalisation correction for source leakage. 
 
-##### What you need for it to run
+This package was originally developed by [@GilesColclough](https://github.com/GilesColclough), and is now maintained by the [OHBA Analysis](https://github.com/OHBA-analysis) group.
 
-- FSL
-- FieldTrip
-- Matlab Stats + signal processing toolboxes - though you could probably change the code to make it work
-- QPAS mex files (optional)
+### What you need for it to run
 
-##### What you need to get started
+ - FSL
+ - FieldTrip
+ - Matlab Stats + signal processing toolboxes - though you could probably change the code to make it work
+ - QPAS mex files (optional)
 
-- Source-reconstructed resting-state MEG data (you can probably get it to work for task)
-- A set of ROIs or a spatial basis set, in the same space and resolution as the MEG data, saved as a nifti
+### What you need to get started
 
-##### How to get started
+ - Source-reconstructed resting-state MEG data (you can probably get it to work for task)
+ - A set of ROIs or a spatial basis set, in the same space and resolution as the MEG data, saved as a nifti
 
-- The `+ROInets` folder is a Matlab package. Don't change the name of the folder, and make sure the folder (not necessarily its contents) is visible on your path
-- View a brief summary of what each function does by typing `help ROInets.Contents`
-- The top-level function is `ROInets.run_individual_network_analysis`. View the helptext for this to view all the pipeline options. 
-- Look at the example files in `+ROInets/+examples`
-- Most of the functions have an attempt at informative help text.
+### How to get started
 
-##### What paper to cite
+This package is distributed as part of [OSL](https://ohba-analysis.github.io/osl-docs/); this is how it should be installed on your machine. 
+
+ - The `+ROInets` folder is a Matlab package. Do not change the name of this folder, and do not add its contents on your path. All the functions inside it can be used by typing e.g. `ROInets.run_network_analysis`.
+ - For a brief summary of what each function, type `help ROInets.Contents`. More information can be found in the help text of each function, and exampled can be found in `+ROInets/+examples`.
+ - The top-level function is `ROInets.run_individual_network_analysis`. View the helptext for this to view all the pipeline options. 
+ - If you often use this package, and would like to avoid typing the prefix `ROInets.*` all the time, check out [`import`](https://uk.mathworks.com/help/matlab/ref/import.html).
+
+### What paper to cite
 
 > Colclough, G. L., Brookes, M., Smith, S. M. and Woolrich, M. W., "A symmetric multivariate leakage correction for MEG connectomes, "NeuroImage 117, pp. 439-448 (2015).
 
-##### Where to ask for help, or report bugs
+### Where to ask for help, or report bugs
 
-For technical support or any other issues, please contact the OHBA Analysis Group at analysis@ohba.ox.ac.uk
+For technical support or any other issues, please either [open an issue](https://github.com/OHBA-analysis/MEG-ROI-nets/issues), or contact the OHBA Analysis Group by [email](mailto:mark.woolrich@ohba.ox.ac.uk).
 
-##### An overview of the pipeline
+### An overview of the pipeline
 
-- Select time region for analysis
-- Band-pass filter the data
-- Find a time-course for each ROI using PCA 
-- Remove effects of leakage using an orthogonalisation process which finds the closest set of orthogonal vectors
-- Find down-sampled power envelopes
-- Perform network inference using partial correlation, L1 regularised using DP-glasso, optimised using cross-validation
-- Convert correlations to z-statistics, by scaling relative to an empirical null, generated to share the same temporal smoothness properties as the input data. 
+ - Select time region for analysis
+ - Band-pass filter the data
+ - Find a time-course for each ROI using PCA 
+ - Remove effects of leakage using an orthogonalisation process which finds the closest set of orthogonal vectors
+ - Find down-sampled power envelopes
+ - Perform network inference using partial correlation, L1 regularised using DP-glasso, optimised using cross-validation
+ - Convert correlations to z-statistics, by scaling relative to an empirical null, generated to share the same temporal smoothness properties as the input data. 
+
+### License
 
 ```
 Copyright 2015 OHBA

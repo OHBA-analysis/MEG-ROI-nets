@@ -267,7 +267,7 @@ function CorrMats = run_individual_network_analysis(D,        ...
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 263 $
 %	$LastChangedDate: 2014-10-23 11:30:39 +0100 (Thu, 23 Oct 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 17-Mar-2014 23:39:39
 
 fprintf('%s: starting analysis. \n', mfilename);

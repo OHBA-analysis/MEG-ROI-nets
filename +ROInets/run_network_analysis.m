@@ -1,7 +1,7 @@
 function correlationMats = run_network_analysis(Dlist, Settings)
-%OSL_NETWORK_ANALYSIS	ROI correlation and partial correlation matrices
+%RUN_NETWORK_ANALYSIS	ROI correlation and partial correlation matrices
 %
-% [CORRELATIONMATS] = osl_network_analysis(DLIST, Settings) runs a
+% [CORRELATIONMATS] = run_network_analysis(DLIST, Settings) runs a
 %   correlation-based network analysis between ROIs on a set of
 %   source-reconstructed data. These are provided as a cell array of SPM12
 %   MEEG objects, or their filenames, in DLIST. 
@@ -318,7 +318,7 @@ function correlationMats = run_network_analysis(Dlist, Settings)
 %	$LastChangedBy$
 %	$Revision$
 %	$LastChangedDate$
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 17-Mar-2014 17:53:55
 
 fprintf('%s: starting analysis. \n', mfilename);
@@ -408,5 +408,5 @@ Settings.correlationMatsFile = saveFileName;
 save(fullfile(outputDirectory, 'ROInetworks_settings.mat'), 'Settings');
 
 fprintf('%s: Analysis complete. \n\n\n', mfilename);
-end%osl_network_analysis
+end%run_network_analysis
 % [EOF]

@@ -30,7 +30,7 @@ function [sigma_z,         ...
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 366 $
 %	$LastChangedDate: 2014-12-13 19:03:44 +0000 (Sat, 13 Dec 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: GLNXA64 by Giles Colclough, 16-Apr-2014 17:09:11
 
 if nIter < 1, 

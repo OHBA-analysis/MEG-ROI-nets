@@ -6,7 +6,7 @@ function plot_group_level_results(correlationMats, Settings, netType, correction
 %						   GROUPLEVELCONSTOPLOT)
 %   plots results from group-level network analysis. 
 %
-%   Takes in CORRELATIONMATS, output from osl_network_analysis. Plots
+%   Takes in CORRELATIONMATS, output from run_network_analysis. Plots
 %   heatmaps of significance using multiple comparisons CORRECTIONTYPE
 %   for network analysis method NETTYPE. Plots will be labelled using cell
 %   array ROINAMES, with optional permutation of ROIs ROIORDER. Chooses

@@ -69,7 +69,7 @@ function [P, W] = glasso_frequentist(S, rho, verbose)
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 214 $
 %	$LastChangedDate: 2014-07-24 12:40:42 +0100 (Thu, 24 Jul 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: GLNXA64 by Giles Colclough, 19-Feb-2014 16:56:06
 
 % lock function in memory and define variable which will flag only on first

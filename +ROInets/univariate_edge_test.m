@@ -42,7 +42,7 @@ function [T, p, corrp, COPE] = univariate_edge_test(netmats, designMatrix, contr
 %	$LastChangedBy: GilesColclough $
 %	$Revision: 763 $
 %	$LastChangedDate: 2015-10-21 11:52:19 +0100 (Wed, 21 Oct 2015) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 25-Sep-2014 15:20:18
 
 

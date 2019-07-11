@@ -44,7 +44,7 @@ function x = randgamma(shape, scale)
 %	$LastChangedBy$
 %	$Revision$
 %	$LastChangedDate$
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: GLNXA64 by Giles Colclough, 19-Feb-2014 16:42:31
 mlock
 persistent USE_LIGHTSPEED

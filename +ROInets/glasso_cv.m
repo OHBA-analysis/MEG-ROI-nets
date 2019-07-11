@@ -58,7 +58,7 @@ function [P, rhoBest, W] = glasso_cv(Y, rhoPath, K, criterion, adaptiveGrid)
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 368 $
 %	$LastChangedDate: 2014-12-13 19:05:24 +0000 (Sat, 13 Dec 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 10-Mar-2014 12:09:29
 
 % default settings

@@ -22,7 +22,7 @@ function mats = do_pairwise_calculation(nodeData,        ...
 %   MATS is a structure containing the Correlation, envCorrelation, and
 %   envPartialCorrelation between nodes after the correction is applied. It
 %   also contains the nSamples in the enveloped data, and a Regularization
-%   field for tying into the osl_network_analysis pipeline. 
+%   field for tying into the run_network_analysis pipeline. 
 %
 % extension of voxelwise orthogonalisation methods to ROI time-courses. 
 % See Brookes et al 2012
@@ -46,7 +46,7 @@ function mats = do_pairwise_calculation(nodeData,        ...
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 373 $
 %	$LastChangedDate: 2015-01-12 16:36:30 +0000 (Mon, 12 Jan 2015) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 18-Mar-2014 09:43:55
 
 % do the calculation using pairwise orthogonalisation and partial

@@ -31,7 +31,7 @@ function [AR_coeffs, varEst, AR_partial_coeffs] = estimate_AR_coeffs(data, order
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 214 $
 %	$LastChangedDate: 2014-07-24 12:40:42 +0100 (Thu, 24 Jul 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: GLNXA64 by Giles Colclough, 16-Apr-2014 15:25:19
 
 % Use matlab convention on signs.

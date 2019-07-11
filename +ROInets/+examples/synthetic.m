@@ -68,7 +68,7 @@ function correlationMats = synthetic(outDir)
 	correlationMats = ROInets.run_individual_network_analysis(dataFile, Settings, resultsName);
 
 	% Want to run an analysis on many subjects? Have a look at 
-	% osl_network_analysis to see the suggested steps. 
+	% run_network_analysis to see the suggested steps. 
 
 	% show results
 	figure('Name', 'node correlation matrix', 'Color', 'w');

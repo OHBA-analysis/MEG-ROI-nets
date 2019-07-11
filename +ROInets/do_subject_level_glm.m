@@ -29,7 +29,7 @@ function correlationMats = do_subject_level_glm(correlationMats, Settings)
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 231 $
 %	$LastChangedDate: 2014-08-07 20:53:06 +0100 (Thu, 07 Aug 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 10-Apr-2014 13:33:21
 
 if ~strcmpi(Settings.paradigm, 'task'),

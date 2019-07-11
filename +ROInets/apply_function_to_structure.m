@@ -20,7 +20,7 @@ function out = apply_function_to_structure(f, in)
 %	$LastChangedBy: giles.colclough@gmail.com $
 %	$Revision: 214 $
 %	$LastChangedDate: 2014-07-24 12:40:42 +0100 (Thu, 24 Jul 2014) $
-%	Contact: giles.colclough@eng.ox.ac.uk
+%	Contact: giles.colclough@gmail.com
 %	Originally written on: MACI64 by Giles Colclough, 17-Mar-2014 23:24:35
 
 ff = fieldnames(in);
