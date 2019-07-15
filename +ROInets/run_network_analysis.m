@@ -26,13 +26,6 @@ function correlationMats = run_network_analysis(Dlist, Settings)
 %      subjectsToDo             - vector of indices indicating which of the 
 %                                 source reconstruction sessions to analyse
 %
-%      nParallelWorkers         - analyse several sessions in parallel, 
-%                                 if non-zero. 
-%                                 Specifies number of matlab workers to use. 
-%                                 Caution: these tasks are very memory-heavy! 
-%                                 You might slow down because you max out 
-%                                 on RAM. 
-%
 %      Regularize               - Structure controlling the use of
 %                                 regularization to find partial
 %                                 correlation matrices, using the graphical
@@ -314,6 +307,15 @@ function correlationMats = run_network_analysis(Dlist, Settings)
 %	You should have received a copy of the GNU General Public License
 %	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+% JH, Jul-2019: removed this from the doc, because it does not seem to be implemented.
+%
+%      nParallelWorkers         - analyse several sessions in parallel, 
+%                                 if non-zero. 
+%                                 Specifies number of matlab workers to use. 
+%                                 Caution: these tasks are very memory-heavy! 
+%                                 You might slow down because you max out 
+%                                 on RAM. 
 
 %	$LastChangedBy$
 %	$Revision$
