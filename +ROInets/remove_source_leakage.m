@@ -46,6 +46,7 @@ function nodeData = remove_source_leakage(nodeDataOrig, protocol)
 switch protocol
     case 'none'
         % no orthogonalisation applied to parcel time-courses
+        nodeData = nodeDataOrig;
         
     case 'closest'
         % finds closest orthogonal set of vectors by applying symmetric 
